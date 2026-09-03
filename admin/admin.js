@@ -73,7 +73,27 @@
     });
   });
 
-  // ---------- Content editor ----------
+  // ---------- Content: visual editor (sub-tabs + page picker) ----------
+  document.querySelectorAll('.content-subtab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.content-subtab').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var target = btn.getAttribute('data-subtab');
+      document.getElementById('content-visual').hidden = target !== 'visual';
+      document.getElementById('content-advanced').hidden = target !== 'advanced';
+    });
+  });
+
+  var visualFrame = document.getElementById('visual-frame');
+  document.querySelectorAll('.page-pick-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.page-pick-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      visualFrame.src = '../' + btn.getAttribute('data-page') + '?cms_edit=1';
+    });
+  });
+
+  // ---------- Content editor (advanced / raw fields) ----------
   var contentForm = document.getElementById('content-form');
   var pageSelect = document.getElementById('content-page-select');
   var contentStatus = document.getElementById('content-status');

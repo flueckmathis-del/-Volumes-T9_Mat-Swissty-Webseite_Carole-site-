@@ -97,6 +97,7 @@
     loadContent(page).then(function (merged) {
       applyValues(document, merged);
       renderLists(document, merged);
+      document.dispatchEvent(new CustomEvent('cms:content-loaded', { detail: { page: page, data: merged } }));
     });
   });
 })();

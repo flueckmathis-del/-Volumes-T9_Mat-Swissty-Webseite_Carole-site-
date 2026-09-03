@@ -46,21 +46,41 @@
 
     <section id="panel-content" class="admin-panel">
       <h2>Inhalte bearbeiten</h2>
-      <div class="admin-row">
-        <label for="content-page-select">Seite</label>
-        <select id="content-page-select">
-          <option value="settings">Einstellungen (Kontakt &amp; Fusszeile)</option>
-          <option value="home">Startseite</option>
-          <option value="about">Über mich</option>
-          <option value="services">Angebot &amp; Preise</option>
-          <option value="metabolic">Metabolic Typing</option>
-          <option value="contact">Kontakt</option>
-        </select>
+      <div class="content-subtabs">
+        <button class="content-subtab active" data-subtab="visual">Visuell bearbeiten</button>
+        <button class="content-subtab" data-subtab="advanced">Erweitert (Listen &amp; Preise)</button>
       </div>
-      <form id="content-form" class="admin-fields"></form>
-      <div class="admin-actions">
-        <button id="content-save" class="btn">Speichern</button>
-        <span id="content-status" class="admin-status"></span>
+
+      <div id="content-visual" class="content-sub-panel">
+        <p class="admin-hint">Wähle eine Seite und klicke direkt im Vorschaufenster auf einen Text, um ihn zu ändern — genau wie er auf der echten Website aussieht. Nicht vergessen: unten im Vorschaufenster auf „Speichern“ klicken.</p>
+        <div class="visual-page-picker">
+          <button class="page-pick-btn active" data-page="index.html">Startseite</button>
+          <button class="page-pick-btn" data-page="ueber-mich.html">Über mich</button>
+          <button class="page-pick-btn" data-page="angebot-preise.html">Angebot &amp; Preise</button>
+          <button class="page-pick-btn" data-page="metabolic-typing.html">Metabolic Typing</button>
+          <button class="page-pick-btn" data-page="kontakt.html">Kontakt</button>
+        </div>
+        <iframe id="visual-frame" class="visual-frame" src="../index.html?cms_edit=1"></iframe>
+      </div>
+
+      <div id="content-advanced" class="content-sub-panel" hidden>
+        <p class="admin-hint">Für Inhalte, die sich nicht einfach anklicken lassen: Themenlisten, die Preistabelle und Bild-Pfade als Rohdaten.</p>
+        <div class="admin-row">
+          <label for="content-page-select">Seite</label>
+          <select id="content-page-select">
+            <option value="settings">Einstellungen (Kontakt &amp; Fusszeile)</option>
+            <option value="home">Startseite</option>
+            <option value="about">Über mich</option>
+            <option value="services">Angebot &amp; Preise</option>
+            <option value="metabolic">Metabolic Typing</option>
+            <option value="contact">Kontakt</option>
+          </select>
+        </div>
+        <form id="content-form" class="admin-fields"></form>
+        <div class="admin-actions">
+          <button id="content-save" class="btn">Speichern</button>
+          <span id="content-status" class="admin-status"></span>
+        </div>
       </div>
     </section>
 
