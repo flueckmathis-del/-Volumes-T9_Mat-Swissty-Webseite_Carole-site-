@@ -31,42 +31,28 @@
   </div>
 </header>
 
-<section class="hero">
-  <div class="wrap">
-    <div>
-      <div class="eyebrow" data-k="hero_eyebrow">CB — Bewusst essen. Gesund leben.</div>
-      <p class="hero-quote" data-k="hero_quote">«Gesunde Ernährung ist mehr als Kalorien zählen»</p>
-      <h1 data-k="hero_title">Härzlech Wiukomme! Schön, dass du da bisch.</h1>
-      <p data-k="hero_p1">Eine ausgewogene Ernährung darf genussvoll, alltagstauglich und ganz individuell sein. Gemeinsam schauen wir, was zu dir, deinem Leben und deinen persönlichen Zielen passt.</p>
-      <p data-k="hero_p2">In meiner Ernährungsberatung geht es nicht um strenge Verbote oder kurzfristige Diäten, sondern darum, ein gutes und entspanntes Verhältnis zum Essen zu entwickeln. Mit verständlichen Tipps, persönlicher Begleitung und kleinen, machbaren Veränderungen finden wir deinen nachhaltigen Weg zu mehr Wohlbefinden und Lebensqualität.</p>
-      <div class="cta-row">
-        <a href="kontakt.html" class="btn" data-k="cta_primary">Kostenlos kennenlernen</a>
-        <a href="angebot-preise.html" class="btn btn-outline" data-k="cta_secondary">Angebot ansehen</a>
-      </div>
-    </div>
-    <div class="hero-art">
-      <svg width="320" height="320" viewBox="0 0 320 320" fill="none">
-        <circle cx="160" cy="160" r="150" stroke="var(--color-brand)" stroke-width="1.5" opacity="0.4"/>
-        <path d="M100 230C100 230 90 150 130 110C160 80 190 90 190 90" stroke="var(--color-sage)" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M130 110C130 110 110 100 105 80" stroke="var(--color-sage)" stroke-width="2" stroke-linecap="round"/>
-        <path d="M140 130C140 130 118 122 112 104" stroke="var(--color-sage)" stroke-width="2" stroke-linecap="round"/>
-        <path d="M150 150C150 150 128 145 120 128" stroke="var(--color-sage)" stroke-width="2" stroke-linecap="round"/>
-        <path d="M190 90C190 90 205 60 200 35" stroke="var(--color-lavender)" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="199" cy="42" r="4" fill="var(--color-lavender)"/>
-        <circle cx="204" cy="52" r="4" fill="var(--color-lavender)"/>
-        <circle cx="196" cy="60" r="4" fill="var(--color-lavender)"/>
-        <circle cx="203" cy="68" r="4" fill="var(--color-lavender)"/>
-        <circle cx="160" cy="160" r="46" fill="var(--color-bg-alt)"/>
-        <text x="160" y="172" font-family="Newsreader, serif" font-size="42" fill="var(--color-brand)" text-anchor="middle">CB</text>
-      </svg>
+<section class="hero-photo">
+  <img class="hero-photo-img" src="assets/hero-fruit-linen.jpg" alt="Frisches Obst und Kräuter auf Leinen im Sonnenlicht">
+  <div class="hero-photo-overlay"></div>
+  <div class="wrap hero-photo-content">
+    <div class="eyebrow" data-k="hero_eyebrow" data-reveal>CB — Bewusst essen. Gesund leben.</div>
+    <p class="hero-quote" data-k="hero_quote" data-reveal>«Gesunde Ernährung ist mehr als Kalorien zählen»</p>
+    <h1 data-k="hero_title" data-reveal>Härzlech Wiukomme! Schön, dass du da bisch.</h1>
+    <p data-k="hero_p1" data-reveal>Eine ausgewogene Ernährung darf genussvoll, alltagstauglich und ganz individuell sein. Gemeinsam schauen wir, was zu dir, deinem Leben und deinen persönlichen Zielen passt.</p>
+    <div class="cta-row" data-reveal>
+      <a href="kontakt.html" class="btn" data-k="cta_primary">Kostenlos kennenlernen</a>
+      <a href="angebot-preise.html" class="btn btn-outline" data-k="cta_secondary">Angebot ansehen</a>
     </div>
   </div>
 </section>
 
 <section class="alt">
   <div class="wrap about-grid">
-    <img src="assets/portrait.png" data-k-src="portrait" alt="Carole Beyeler, Ernährungsspezialistin" style="max-width:280px; margin:0 auto;">
-    <div>
+    <div data-reveal style="position:relative; max-width:320px; margin:0 auto;">
+      <img src="assets/portrait.png" data-k-src="portrait" alt="Carole Beyeler, Ernährungsspezialistin" style="border-radius:8px;">
+      <img src="assets/herbs-wood.jpg" alt="" aria-hidden="true" style="position:absolute; width:44%; bottom:-24px; right:-30px; border:6px solid var(--color-bg-alt); border-radius:8px; box-shadow:0 16px 32px -14px rgba(58,51,44,0.4);">
+    </div>
+    <div data-reveal>
       <div class="eyebrow" data-k="about_eyebrow">Individuell begleitet</div>
       <h2 data-k="about_title">Als gelernte Köchin zur Ernährungsspezialistin</h2>
       <p data-k="about_text">Als gelernte Köchin sowie Konditorin-Confiseurin begleitet mich die Leidenschaft für Lebensmittel und Genuss schon seit vielen Jahren. Aus dieser Erfahrung heraus habe ich mich zur diplomierten Ernährungsspezialistin weitergebildet — mit dem Ziel, dich individuell, genussvoll und langfristig auf deinem Weg zu begleiten.</p>
@@ -77,11 +63,11 @@
 
 <section>
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <div class="eyebrow" data-k="services_eyebrow">So unterstütze ich dich</div>
       <h2 data-k="services_title">Drei Wege zu mehr Wohlbefinden</h2>
     </div>
-    <div class="grid-3">
+    <div class="grid-3" data-reveal-group>
       <div class="card">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 4c-8 0-14 5-14 13 0 1.5.2 2 .2 2S12 18 12 10c0-3 2-5 2-5"/>
@@ -114,8 +100,10 @@
   </div>
 </section>
 
-<section class="alt">
-  <div class="wrap" style="text-align:center; max-width:640px;">
+<section class="photo-band">
+  <img class="photo-band-img" src="assets/basil-bowl.jpg" alt="" aria-hidden="true">
+  <div class="photo-band-overlay"></div>
+  <div class="wrap" style="text-align:center; max-width:640px;" data-reveal>
     <h2 data-k="cta_title">Bereit für den ersten Schritt?</h2>
     <p data-k="cta_text">Im kostenlosen, ca. 15-minütigen Telefongespräch erzählst du mir von deinen Zielen und Wünschen — gemeinsam schauen wir, ob ich dich auf deinem Weg begleiten kann.</p>
     <a href="kontakt.html" class="btn" data-k="cta_button">Kontakt aufnehmen</a>

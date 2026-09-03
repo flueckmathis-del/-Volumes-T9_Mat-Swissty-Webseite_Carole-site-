@@ -101,6 +101,27 @@ header.site-header {
   z-index: 50;
   background: var(--color-bg);
   border-bottom: 1px solid rgba(58,51,44,0.10);
+  transition: background 0.35s ease, border-color 0.35s ease;
+}
+
+/* Transparenter Header über dem Foto-Hero, wird beim Scrollen solide */
+.site-header.has-hero-photo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.site-header.has-hero-photo.at-top {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+.site-header.has-hero-photo.at-top .brand,
+.site-header.has-hero-photo.at-top nav.main-nav a:not(.btn) {
+  color: #FFFDFA;
+}
+.site-header.has-hero-photo.at-top nav.main-nav a.active,
+.site-header.has-hero-photo.at-top nav.main-nav a:not(.btn):hover {
+  color: #EFE0C9;
 }
 
 .nav-inner {
@@ -128,10 +149,26 @@ nav.main-nav {
   align-items: center;
   gap: 30px;
 }
-nav.main-nav a {
+nav.main-nav a:not(.btn) {
   color: var(--color-ink);
   font-size: 0.92rem;
   font-weight: 700;
+  position: relative;
+  transition: color 0.2s ease;
+}
+nav.main-nav a:not(.btn)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+nav.main-nav a:not(.btn):hover::after,
+nav.main-nav a.active:not(.btn)::after {
+  width: 100%;
 }
 nav.main-nav a.active { color: var(--color-brand); }
 nav.main-nav a:hover { color: var(--color-brand); }
@@ -198,6 +235,77 @@ nav.main-nav a:hover { color: var(--color-brand); }
 }
 .hero-art { display: flex; justify-content: center; }
 
+/* ---------- Foto-Hero (Startseite) ---------- */
+.hero-photo {
+  position: relative;
+  min-height: 640px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  margin-top: -1px;
+}
+.hero-photo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: heroSlowZoom 16s ease-in-out infinite alternate;
+}
+@keyframes heroSlowZoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+.hero-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(28,24,18,0.55) 0%, rgba(28,24,18,0.25) 45%, rgba(28,24,18,0.75) 100%);
+}
+.hero-photo-content {
+  position: relative;
+  z-index: 2;
+  padding: 160px 32px 72px;
+  max-width: 720px;
+}
+.hero-photo-content .hero-quote { color: #FFFDFA; }
+.hero-photo-content h1 { color: #FFFDFA; }
+.hero-photo-content p { color: rgba(255,253,250,0.92); }
+@media (max-width: 700px) {
+  .hero-photo { min-height: 560px; }
+  .hero-photo-content { padding: 120px 24px 56px; }
+}
+
+/* ---------- Scroll-Reveal ---------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+[data-reveal-group] > * {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+[data-reveal-group].is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+[data-reveal-group].is-visible > *:nth-child(2) { transition-delay: 0.12s; }
+[data-reveal-group].is-visible > *:nth-child(3) { transition-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal], [data-reveal-group] > *, .hero-photo-img {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @media (max-width: 860px) {
   .hero .wrap { grid-template-columns: 1fr; }
   .hero-art { order: -1; max-width: 280px; margin: 0 auto; }
@@ -222,8 +330,19 @@ section.alt { background: var(--color-bg-alt); }
   border: 1px solid rgba(58,51,44,0.08);
   border-radius: 8px;
   padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.card svg { margin-bottom: 16px; }
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -18px rgba(58,51,44,0.28);
+}
+.card svg { margin-bottom: 16px; transition: transform 0.3s ease; }
+.card:hover svg { transform: scale(1.12); }
+
+/* ---------- Bild-Rahmen mit sanftem Zoom ---------- */
+.img-frame { overflow: hidden; border-radius: 8px; }
+.img-frame img { transition: transform 0.6s ease; }
+.img-frame:hover img { transform: scale(1.06); }
 
 /* ---------- Pricing ---------- */
 .price-table {
@@ -276,6 +395,28 @@ ul.topic-list li::before {
 }
 .about-grid img { border-radius: 8px; }
 @media (max-width: 860px) { .about-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Foto-Hintergrund-Sektion (CTA-Bänder) ---------- */
+.photo-band {
+  position: relative;
+  padding: 88px 0;
+  overflow: hidden;
+}
+.photo-band-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-band-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(58,51,44,0.82) 0%, rgba(58,51,44,0.62) 100%);
+}
+.photo-band .wrap { position: relative; z-index: 2; }
+.photo-band h2, .photo-band p { color: #FFFDFA; }
+.photo-band p { color: rgba(255,253,250,0.9); }
 
 /* ---------- Contact ---------- */
 .contact-grid {
