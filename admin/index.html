@@ -86,8 +86,18 @@
 
     <section id="panel-bookings" class="admin-panel" hidden>
       <h2>Termine</h2>
-      <p class="admin-hint">Alle gebuchten Termine der nächsten Wochen. Zum Absagen auf „Absagen“ klicken — der Termin wird dadurch sofort wieder frei buchbar.</p>
-      <div id="bookings-list" class="admin-list"></div>
+      <p class="admin-hint">Klicke auf einen Termin-Block für Details oder zum Absagen. Mit den Pfeilen durch die Wochen blättern — auch beliebig weit zurück oder in die Zukunft.</p>
+
+      <div class="cal-toolbar">
+        <button id="cal-prev" class="btn btn-outline" type="button">← Vorherige Woche</button>
+        <button id="cal-today" class="btn btn-outline" type="button">Heute</button>
+        <button id="cal-next" class="btn btn-outline" type="button">Nächste Woche →</button>
+        <div id="cal-week-label" class="cal-week-label"></div>
+      </div>
+
+      <div class="cal-grid-scroll">
+        <div id="cal-grid" class="cal-grid"></div>
+      </div>
     </section>
 
     <section id="panel-availability" class="admin-panel" hidden>

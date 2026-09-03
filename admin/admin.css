@@ -186,6 +186,114 @@
 }
 .booking-card .cancel-btn:hover { background: #B3432B; color: #fff; }
 
+/* ---------- Bookings calendar ---------- */
+.cal-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.cal-toolbar .btn, .cal-toolbar .btn-outline { padding: 8px 14px; font-size: 0.85rem; }
+.cal-week-label {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--color-brand-dark);
+  font-size: 1.05rem;
+  margin-left: 8px;
+}
+
+.cal-grid-scroll { overflow-x: auto; padding-bottom: 12px; }
+.cal-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px repeat(7, minmax(120px, 1fr));
+  min-width: 940px;
+  border: 1px solid rgba(58,51,44,0.12);
+  border-radius: 8px;
+  overflow: visible;
+  background: var(--color-white);
+}
+.cal-col-head {
+  padding: 10px 6px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  border-bottom: 1px solid rgba(58,51,44,0.12);
+  border-left: 1px solid rgba(58,51,44,0.08);
+  background: var(--color-bg-alt);
+}
+.cal-col-head.is-today { color: var(--color-brand); background: rgba(130,108,79,0.12); }
+.cal-corner { border-bottom: 1px solid rgba(58,51,44,0.12); background: var(--color-bg-alt); }
+
+.cal-time-col { position: relative; border-left: none; }
+.cal-time-label {
+  position: absolute;
+  right: 6px;
+  transform: translateY(-50%);
+  font-size: 0.72rem;
+  color: rgba(58,51,44,0.55);
+}
+.cal-day-col {
+  position: relative;
+  border-left: 1px solid rgba(58,51,44,0.08);
+  background-image: repeating-linear-gradient(to bottom, rgba(58,51,44,0.07) 0, rgba(58,51,44,0.07) 1px, transparent 1px, transparent var(--hour-h));
+}
+.cal-block {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  background: var(--color-brand);
+  color: #fff;
+  border-radius: 5px;
+  padding: 4px 7px;
+  font-size: 0.74rem;
+  line-height: 1.25;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(58,51,44,0.25);
+  transition: filter 0.15s ease;
+}
+.cal-block:hover { filter: brightness(1.08); }
+.cal-block strong { display: block; font-size: 0.78rem; }
+
+.cal-popover {
+  position: absolute;
+  z-index: 50;
+  background: #fff;
+  border: 1px solid rgba(58,51,44,0.15);
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 16px 36px rgba(58,51,44,0.25);
+  font-size: 0.85rem;
+  max-width: 260px;
+}
+.cal-popover .when { font-weight: 700; color: var(--color-brand-dark); margin-bottom: 4px; }
+.cal-popover .msg { color: rgba(58,51,44,0.7); margin: 6px 0; font-size: 0.82rem; }
+.cal-popover .cancel-btn {
+  margin-top: 8px;
+  background: transparent;
+  border: 1.5px solid #B3432B;
+  color: #B3432B;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.cal-popover .cancel-btn:hover { background: #B3432B; color: #fff; }
+.cal-popover .close-btn {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: rgba(58,51,44,0.5);
+}
+
 /* ---------- Insights ---------- */
 .admin-stat-row { display: flex; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
 .admin-stat { display: flex; flex-direction: column; gap: 4px; }

@@ -195,47 +195,162 @@
     });
   }
 
-  // ---------- Bookings ----------
+  // ---------- Bookings calendar (week view, navigable) ----------
+  var CAL_START_HOUR = 7;
+  var CAL_END_HOUR = 20;
+  var CAL_HOUR_HEIGHT = 50; // px
+  var WEEKDAY_LABELS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  var currentWeekStart = mondayOf(new Date());
+  var calSlotMinutes = 60;
   var bookingsInitialized = false;
-  function loadBookings() {
-    var list = document.getElementById('bookings-list');
-    list.innerHTML = '<p class="admin-list-empty">Lädt …</p>';
-    return api('admin-bookings?days=90').then(function (data) {
-      var bookings = data.bookings || [];
-      if (!bookings.length) {
-        list.innerHTML = '<p class="admin-list-empty">Keine kommenden Termine.</p>';
-        return bookings;
-      }
-      list.innerHTML = '';
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function toDateStr(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function toDisplay(d) { return pad2(d.getDate()) + '.' + pad2(d.getMonth() + 1) + '.' + d.getFullYear(); }
+  function mondayOf(d) {
+    var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = date.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    date.setDate(date.getDate() + diff);
+    return date;
+  }
+  function addDaysLocal(d, n) {
+    var copy = new Date(d);
+    copy.setDate(copy.getDate() + n);
+    return copy;
+  }
+  function isoWeekNumber(d) {
+    var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  }
+
+  function renderCalendarShell() {
+    var grid = document.getElementById('cal-grid');
+    var todayStr = toDateStr(new Date());
+    var totalHeight = (CAL_END_HOUR - CAL_START_HOUR) * CAL_HOUR_HEIGHT;
+    var html = '<div class="cal-corner"></div>';
+
+    for (var i = 0; i < 7; i++) {
+      var d = addDaysLocal(currentWeekStart, i);
+      var isToday = toDateStr(d) === todayStr;
+      html += '<div class="cal-col-head' + (isToday ? ' is-today' : '') + '">' + WEEKDAY_LABELS[i] + '<br>' + toDisplay(d).slice(0, 5) + '</div>';
+    }
+
+    html += '<div class="cal-time-col" style="height:' + totalHeight + 'px;">';
+    for (var h = CAL_START_HOUR; h <= CAL_END_HOUR; h++) {
+      html += '<span class="cal-time-label" style="top:' + ((h - CAL_START_HOUR) * CAL_HOUR_HEIGHT) + 'px;">' + pad2(h) + ':00</span>';
+    }
+    html += '</div>';
+
+    for (var j = 0; j < 7; j++) {
+      html += '<div class="cal-day-col" data-day-index="' + j + '" style="height:' + totalHeight + 'px; --hour-h:' + CAL_HOUR_HEIGHT + 'px;"></div>';
+    }
+
+    grid.innerHTML = html;
+
+    var weekEnd = addDaysLocal(currentWeekStart, 6);
+    document.getElementById('cal-week-label').textContent =
+      'KW' + isoWeekNumber(currentWeekStart) + ': ' + toDisplay(currentWeekStart) + ' – ' + toDisplay(weekEnd);
+  }
+
+  function closeCalPopover() {
+    var existing = document.querySelector('.cal-popover');
+    if (existing) existing.remove();
+  }
+
+  function loadCalendarWeek() {
+    renderCalendarShell();
+    closeCalPopover();
+    var from = toDateStr(currentWeekStart);
+    var to = toDateStr(addDaysLocal(currentWeekStart, 6));
+
+    var tasks = [api('admin-bookings?from=' + from + '&to=' + to)];
+    tasks.push(api('admin-availability').then(function (a) { calSlotMinutes = a.slotMinutes || 60; }).catch(function () {}));
+
+    Promise.all(tasks).then(function (results) {
+      var bookings = results[0].bookings || [];
       bookings.forEach(function (b) {
-        var card = document.createElement('div');
-        card.className = 'booking-card';
-        var msg = b.message ? '<div class="msg">' + escapeHtml(b.message) + '</div>' : '';
-        card.innerHTML =
-          '<div><div class="when">' + b.date + ' · ' + b.time + ' Uhr</div>' +
-          '<div class="who">' + escapeHtml(b.name) + ' — <a href="mailto:' + escapeHtml(b.email) + '">' + escapeHtml(b.email) + '</a></div>' +
-          msg + '</div>';
-        var btn = document.createElement('button');
-        btn.className = 'cancel-btn';
-        btn.textContent = 'Absagen';
-        btn.addEventListener('click', function () {
-          if (!confirm('Termin am ' + b.date + ' um ' + b.time + ' Uhr wirklich absagen?')) return;
-          api('admin-cancel-booking', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: b.date, id: b.id }),
-          }).then(loadBookings);
+        var dayIndex = Math.round((new Date(b.date + 'T00:00:00') - currentWeekStart) / 86400000);
+        if (dayIndex < 0 || dayIndex > 6) return;
+        var col = document.querySelector('.cal-day-col[data-day-index="' + dayIndex + '"]');
+        if (!col) return;
+
+        var timeParts = b.time.split(':').map(Number);
+        var minutesFromStart = (timeParts[0] - CAL_START_HOUR) * 60 + timeParts[1];
+        var top = (minutesFromStart / 60) * CAL_HOUR_HEIGHT;
+        var height = Math.max(20, (calSlotMinutes / 60) * CAL_HOUR_HEIGHT - 2);
+
+        var block = document.createElement('div');
+        block.className = 'cal-block';
+        block.style.top = top + 'px';
+        block.style.height = height + 'px';
+        block.innerHTML = '<strong>' + b.time + '</strong>' + escapeHtml(b.name);
+        block.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          showBookingPopover(block, b);
         });
-        card.appendChild(btn);
-        list.appendChild(card);
+        col.appendChild(block);
       });
-      return bookings;
     });
   }
+
+  function showBookingPopover(anchorEl, booking) {
+    closeCalPopover();
+    var pop = document.createElement('div');
+    pop.className = 'cal-popover';
+    var msg = booking.message ? '<div class="msg">' + escapeHtml(booking.message) + '</div>' : '';
+    pop.innerHTML =
+      '<button class="close-btn" type="button">×</button>' +
+      '<div class="when">' + booking.date + ' · ' + booking.time + ' Uhr</div>' +
+      '<div>' + escapeHtml(booking.name) + '<br><a href="mailto:' + escapeHtml(booking.email) + '">' + escapeHtml(booking.email) + '</a></div>' +
+      msg +
+      '<div><button class="cancel-btn" type="button">Termin absagen</button></div>';
+
+    document.getElementById('cal-grid').appendChild(pop);
+    var anchorRect = anchorEl.getBoundingClientRect();
+    var gridRect = document.getElementById('cal-grid').getBoundingClientRect();
+    pop.style.top = (anchorRect.top - gridRect.top) + 'px';
+    pop.style.left = Math.min(anchorRect.left - gridRect.left, gridRect.width - 270) + 'px';
+
+    pop.querySelector('.close-btn').addEventListener('click', closeCalPopover);
+    pop.querySelector('.cancel-btn').addEventListener('click', function () {
+      if (!confirm('Termin am ' + booking.date + ' um ' + booking.time + ' Uhr wirklich absagen?')) return;
+      api('admin-cancel-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: booking.date, id: booking.id }),
+      }).then(loadCalendarWeek);
+    });
+  }
+
   function initBookingsTab() {
+    document.getElementById('cal-prev').addEventListener('click', function () {
+      currentWeekStart = addDaysLocal(currentWeekStart, -7);
+      loadCalendarWeek();
+    });
+    document.getElementById('cal-next').addEventListener('click', function () {
+      currentWeekStart = addDaysLocal(currentWeekStart, 7);
+      loadCalendarWeek();
+    });
+    document.getElementById('cal-today').addEventListener('click', function () {
+      currentWeekStart = mondayOf(new Date());
+      loadCalendarWeek();
+    });
     if (bookingsInitialized) return;
     bookingsInitialized = true;
-    loadBookings();
+    loadCalendarWeek();
+  }
+
+  // Small helper for the Insights tab's "kommende Termine" stat.
+  function loadUpcomingCount() {
+    var today = toDateStr(new Date());
+    var to = toDateStr(addDaysLocal(new Date(), 90));
+    return api('admin-bookings?from=' + today + '&to=' + to).then(function (data) {
+      return (data.bookings || []).length;
+    });
   }
 
   // ---------- Availability ----------
@@ -353,8 +468,8 @@
       }
     });
 
-    loadBookings().then(function (bookings) {
-      document.getElementById('stat-upcoming').textContent = bookings.length;
+    loadUpcomingCount().then(function (count) {
+      document.getElementById('stat-upcoming').textContent = count;
     });
   }
 
