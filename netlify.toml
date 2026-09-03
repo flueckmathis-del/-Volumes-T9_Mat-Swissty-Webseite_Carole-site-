@@ -1,7 +1,7 @@
 [build]
   publish = "."
+  command = "npm install"
 
-[[headers]]
-  for = "/content/*.json"
-  [headers.values]
-    Cache-Control = "no-cache"
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

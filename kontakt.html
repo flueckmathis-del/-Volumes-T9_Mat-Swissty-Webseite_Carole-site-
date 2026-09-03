@@ -65,31 +65,38 @@
       </a>
     </div>
 
-    <form class="contact-form" action="https://formspree.io/f/PLATZHALTER_FORM_ID" method="POST">
-      <!--
-        Formular-Setup (für Mathis, nicht für Website-Besucher sichtbar):
-        1. Kostenloses Konto auf https://formspree.io erstellen (mit cb.ernaehrung@gmail.com).
-        2. Neues Formular anlegen, die echte Form-ID kopieren.
-        3. "PLATZHALTER_FORM_ID" oben im action-Attribut durch die echte ID ersetzen.
-        Danach verschickt Formspree eingehende Nachrichten automatisch per Mail und
-        kann eine automatische Bestätigungsmail an den Absender aktivieren (Einstellung im Formspree-Dashboard).
-      -->
+    <form class="contact-form booking-form" id="booking-form" novalidate>
       <div>
-        <label for="name">Name *</label>
-        <input type="text" id="name" name="name" required>
+        <label for="booking-date">Datum wählen *</label>
+        <input type="date" id="booking-date" name="date" required>
       </div>
-      <div>
-        <label for="email">E-Mail *</label>
-        <input type="email" id="email" name="email" required>
+
+      <div id="booking-slots-wrap" hidden>
+        <label>Uhrzeit wählen *</label>
+        <div id="booking-slots" class="booking-slots"></div>
+        <p id="booking-slots-empty" class="form-note" hidden>An diesem Tag ist leider kein Termin mehr frei — bitte ein anderes Datum wählen.</p>
       </div>
-      <div>
-        <label for="message">Nachricht *</label>
-        <textarea id="message" name="message" rows="5" required></textarea>
+
+      <div id="booking-details" hidden>
+        <div>
+          <label for="name">Name *</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+          <label for="email">E-Mail *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div>
+          <label for="message">Nachricht (optional)</label>
+          <textarea id="message" name="message" rows="4"></textarea>
+        </div>
+        <div>
+          <button type="submit" class="btn">Termin verbindlich buchen</button>
+          <p class="form-note">Mit dem Absenden stimmst du der Kontaktaufnahme per E-Mail zu.</p>
+        </div>
       </div>
-      <div>
-        <button type="submit" class="btn" data-k="form_button">Nachricht senden</button>
-        <p class="form-note" data-k="form_note">Mit dem Absenden stimmst du der Kontaktaufnahme per E-Mail zu.</p>
-      </div>
+
+      <p id="booking-status" class="form-note" role="status"></p>
     </form>
   </div>
 </section>
@@ -126,5 +133,6 @@
 
 <script src="js/main.js"></script>
 <script src="js/content.js"></script>
+<script src="js/booking.js"></script>
 </body>
 </html>

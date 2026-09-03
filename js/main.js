@@ -65,4 +65,13 @@ document.addEventListener('DOMContentLoaded', function () {
   };
   updateBackToTop();
   window.addEventListener('scroll', updateBackToTop, { passive: true });
+
+  // Anonyme Seitenaufruf-Statistik (keine Cookies, keine personenbezogenen
+  // Daten) — nur Seitenname + Datum werden gezählt, sichtbar unter /admin.
+  var pageName = location.pathname.split('/').pop() || 'index.html';
+  fetch('/.netlify/functions/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ page: pageName }),
+  }).catch(function () {});
 });

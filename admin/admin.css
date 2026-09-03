@@ -1,0 +1,179 @@
+.admin-body { background: var(--color-bg); }
+
+/* ---------- Login ---------- */
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+#login-screen[hidden] { display: none; }
+.admin-login-card {
+  background: var(--color-white);
+  border: 1px solid rgba(58,51,44,0.1);
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 30px 60px -30px rgba(58,51,44,0.3);
+}
+.admin-logo { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 16px; }
+.admin-login-card h1 { font-size: 1.5rem; margin-bottom: 8px; }
+.admin-login-card p { font-size: 0.92rem; color: rgba(58,51,44,0.7); margin-bottom: 24px; }
+#login-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+#login-form label { font-weight: 700; font-size: 0.88rem; }
+#login-form input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 11px 14px;
+  border: 1.5px solid rgba(58,51,44,0.18);
+  border-radius: 6px;
+}
+.admin-error { color: #B3432B; font-size: 0.88rem; margin-top: 4px; }
+
+/* ---------- Shell ---------- */
+.admin-header {
+  background: var(--color-brand-dark);
+  color: #fff;
+}
+.admin-header-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+.admin-brand img { width: 34px; height: 34px; border-radius: 50%; }
+.admin-tabs { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+.admin-tab {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.75);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 9px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.admin-tab:hover { color: #fff; }
+.admin-tab.active { background: rgba(255,255,255,0.15); color: #fff; }
+
+.admin-main { padding: 40px 32px 80px; }
+.admin-panel h2 { margin-bottom: 6px; }
+.admin-hint { color: rgba(58,51,44,0.65); font-size: 0.9rem; max-width: 640px; margin-bottom: 24px; }
+
+.admin-row { margin-bottom: 18px; max-width: 640px; }
+.admin-row label, .admin-fields label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+.admin-row input, .admin-row textarea,
+.admin-fields input, .admin-fields textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  border: 1.5px solid rgba(58,51,44,0.18);
+  border-radius: 6px;
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+.admin-row input:focus, .admin-row textarea:focus,
+.admin-fields input:focus, .admin-fields textarea:focus {
+  outline: none;
+  border-color: var(--color-brand);
+}
+
+.admin-fields { max-width: 720px; margin-bottom: 8px; }
+.admin-field { margin-bottom: 16px; }
+.admin-field textarea { min-height: 70px; }
+.admin-field.is-json textarea { min-height: 220px; font-family: ui-monospace, Menlo, monospace; font-size: 0.85rem; }
+
+.admin-actions { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+.admin-status { font-size: 0.9rem; color: var(--color-sage); }
+.admin-status.is-error { color: #B3432B; }
+
+/* Availability weekday grid */
+.avail-day-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.avail-day-row label { margin-bottom: 0; }
+
+/* ---------- Lists ---------- */
+.admin-list { display: flex; flex-direction: column; gap: 10px; max-width: 860px; }
+.admin-list-empty { color: rgba(58,51,44,0.6); font-size: 0.9rem; }
+.booking-card {
+  background: var(--color-white);
+  border: 1px solid rgba(58,51,44,0.1);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.booking-card .when { font-weight: 700; color: var(--color-brand-dark); min-width: 150px; }
+.booking-card .who { font-size: 0.92rem; }
+.booking-card .msg { font-size: 0.85rem; color: rgba(58,51,44,0.7); margin-top: 4px; }
+.booking-card .cancel-btn {
+  background: transparent;
+  border: 1.5px solid #B3432B;
+  color: #B3432B;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.booking-card .cancel-btn:hover { background: #B3432B; color: #fff; }
+
+/* ---------- Insights ---------- */
+.admin-stat-row { display: flex; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
+.admin-stat { display: flex; flex-direction: column; gap: 4px; }
+.admin-stat-number { font-family: var(--font-head); font-size: 2.2rem; color: var(--color-brand-dark); font-weight: 600; }
+.admin-chart { display: flex; align-items: flex-end; gap: 4px; height: 140px; margin-bottom: 32px; max-width: 720px; }
+.admin-chart-bar { flex: 1; background: var(--color-brand); border-radius: 3px 3px 0 0; min-height: 2px; position: relative; }
+.admin-chart-bar:hover { background: var(--color-brand-dark); }
+.admin-chart-bar .bar-label {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  margin-bottom: 2px;
+  color: var(--color-ink);
+}
+.top-page-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(58,51,44,0.08);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 700px) {
+  .admin-main { padding: 28px 18px 60px; }
+  .avail-day-row { grid-template-columns: 1fr; }
+}

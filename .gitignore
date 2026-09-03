@@ -1,1 +1,11 @@
 .DS_Store
+
+# Local Netlify folder
+.netlify
+.env
+
+# Node dependencies (installed automatically by Netlify at deploy time)
+node_modules
+
+# Local netlify dev artifact (Edge Functions bootstrap, unused here)
+deno.lock

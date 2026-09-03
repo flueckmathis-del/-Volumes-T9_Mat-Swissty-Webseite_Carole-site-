@@ -1,0 +1,9 @@
+{
+  "name": "cb-ernaehrung-website",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Website und Backend (Netlify Functions + Blobs) für CB Ernährungsberatung.",
+  "dependencies": {
+    "@netlify/blobs": "^11.0.3"
+  }
+}

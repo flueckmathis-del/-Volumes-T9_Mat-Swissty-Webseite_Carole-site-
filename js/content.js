@@ -76,15 +76,25 @@
     });
   }
 
+  // Lädt Inhalte live aus dem Backend (editierbar über /admin); fällt auf die
+  // im Projekt mitgelieferten Standard-Dateien zurück, falls die Funktion
+  // nicht erreichbar ist (z.B. beim lokalen Öffnen der Datei ohne Server).
+  function loadContent(page) {
+    var apiUrl = page ? '/.netlify/functions/content?page=' + encodeURIComponent(page) : '/.netlify/functions/content';
+    return loadJson(apiUrl).catch(function () {
+      var staticRequests = [loadJson('content/settings.json').catch(function () { return {}; })];
+      if (page) {
+        staticRequests.push(loadJson('content/' + page + '.json').catch(function () { return {}; }));
+      }
+      return Promise.all(staticRequests).then(function (results) {
+        return Object.assign({}, results[0], results[1] || {});
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     var page = document.body.getAttribute('data-content');
-    var requests = [loadJson('content/settings.json').catch(function () { return {}; })];
-    if (page) {
-      requests.push(loadJson('content/' + page + '.json').catch(function () { return {}; }));
-    }
-
-    Promise.all(requests).then(function (results) {
-      var merged = Object.assign({}, results[0], results[1] || {});
+    loadContent(page).then(function (merged) {
       applyValues(document, merged);
       renderLists(document, merged);
     });
