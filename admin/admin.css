@@ -228,6 +228,24 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
+.cal-absence-block {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  background-color: rgba(179,67,43,0.15);
+  background-image: repeating-linear-gradient(135deg, rgba(179,67,43,0.25) 0, rgba(179,67,43,0.25) 6px, transparent 6px, transparent 12px);
+  border: 1px dashed rgba(179,67,43,0.5);
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #8f3521;
+  padding: 3px 6px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.absences-section { margin-top: 28px; max-width: 860px; }
+.absences-section h3 { font-size: 1rem; margin-bottom: 12px; }
 
 .cancellations-log { margin-top: 32px; max-width: 860px; }
 .cancellations-log summary { cursor: pointer; font-weight: 700; color: var(--color-brand-dark); margin-bottom: 12px; }

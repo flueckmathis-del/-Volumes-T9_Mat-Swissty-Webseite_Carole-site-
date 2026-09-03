@@ -5,6 +5,7 @@ import { DEFAULT_AVAILABILITY } from './_shared/availability.mjs';
 const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 const RANGE_RE = /^\d{2}:\d{2}-\d{2}:\d{2}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^\d{2}:\d{2}$/;
 
 function validate(body) {
   if (!body || typeof body !== 'object') return 'Ungültige Daten.';
@@ -22,8 +23,16 @@ function validate(body) {
       if (!RANGE_RE.test(r)) return `Ungültiger Zeitbereich "${r}" bei ${day}.`;
     }
   }
-  if (!Array.isArray(body.blockedDates) || body.blockedDates.some((d) => !DATE_RE.test(d))) {
-    return 'blockedDates muss eine Liste von YYYY-MM-DD sein.';
+  if (!Array.isArray(body.absences)) return 'absences muss eine Liste sein.';
+  for (const a of body.absences) {
+    if (!a || typeof a !== 'object') return 'Ungültiger Abwesenheitseintrag.';
+    if (!DATE_RE.test(a.date)) return 'Ungültiges Datum in einer Abwesenheit.';
+    if (typeof a.allDay !== 'boolean') return 'allDay fehlt bei einer Abwesenheit.';
+    if (!a.allDay) {
+      if (!TIME_RE.test(a.start) || !TIME_RE.test(a.end) || a.start >= a.end) {
+        return 'Ungültige Start-/Endzeit in einer Abwesenheit.';
+      }
+    }
   }
   return null;
 }

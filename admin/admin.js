@@ -268,23 +268,38 @@
     var to = toDateStr(addDaysLocal(currentWeekStart, 6));
 
     var tasks = [api('admin-bookings?from=' + from + '&to=' + to)];
-    var blockedDates = [];
+    var absences = [];
     tasks.push(api('admin-availability').then(function (a) {
       calSlotMinutes = a.slotMinutes || 60;
-      blockedDates = a.blockedDates || [];
+      absences = a.absences || [];
     }).catch(function () {}));
 
     Promise.all(tasks).then(function (results) {
-      blockedDates.forEach(function (dateStr) {
-        var dayIndex = Math.round((new Date(dateStr + 'T00:00:00') - currentWeekStart) / 86400000);
+      absences.forEach(function (a) {
+        var dayIndex = Math.round((new Date(a.date + 'T00:00:00') - currentWeekStart) / 86400000);
         if (dayIndex < 0 || dayIndex > 6) return;
         var col = document.querySelector('.cal-day-col[data-day-index="' + dayIndex + '"]');
         if (!col) return;
-        col.classList.add('is-blocked');
-        var label = document.createElement('div');
-        label.className = 'cal-blocked-label';
-        label.textContent = 'Abwesend';
-        col.appendChild(label);
+
+        if (a.allDay) {
+          col.classList.add('is-blocked');
+          var label = document.createElement('div');
+          label.className = 'cal-blocked-label';
+          label.textContent = a.reason ? 'Abwesend: ' + a.reason : 'Abwesend';
+          col.appendChild(label);
+        } else {
+          var startParts = a.start.split(':').map(Number);
+          var endParts = a.end.split(':').map(Number);
+          var startMin = (startParts[0] - CAL_START_HOUR) * 60 + startParts[1];
+          var endMin = (endParts[0] - CAL_START_HOUR) * 60 + endParts[1];
+          var abBlock = document.createElement('div');
+          abBlock.className = 'cal-absence-block';
+          abBlock.style.top = Math.max(0, (startMin / 60) * CAL_HOUR_HEIGHT) + 'px';
+          abBlock.style.height = Math.max(14, ((endMin - startMin) / 60) * CAL_HOUR_HEIGHT) + 'px';
+          abBlock.textContent = a.reason || 'Abwesend';
+          abBlock.title = a.start + '–' + a.end + (a.reason ? ' · ' + a.reason : '');
+          col.appendChild(abBlock);
+        }
       });
 
       var bookings = results[0].bookings || [];
@@ -382,10 +397,17 @@
   }
 
   // ---------- Block time (Ferien / Abwesenheit) ----------
+  function makeId() {
+    if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+    return 'a' + Date.now() + Math.random().toString(16).slice(2);
+  }
+
   function initBlockTimeForm() {
     var btn = document.getElementById('block-time-btn');
     var form = document.getElementById('block-time-form');
     var status = document.getElementById('block-status');
+    var allDayCheckbox = document.getElementById('block-all-day');
+    var timeRangeWrap = document.getElementById('block-time-range');
 
     btn.addEventListener('click', function () {
       form.hidden = !form.hidden;
@@ -396,6 +418,9 @@
         if (!toInput.value) toInput.value = fromInput.value;
       }
     });
+    allDayCheckbox.addEventListener('change', function () {
+      timeRangeWrap.hidden = allDayCheckbox.checked;
+    });
     document.getElementById('block-cancel').addEventListener('click', function () {
       form.hidden = true;
       status.textContent = '';
@@ -403,40 +428,93 @@
     document.getElementById('block-save').addEventListener('click', function () {
       var from = document.getElementById('block-from').value;
       var to = document.getElementById('block-to').value;
+      var allDay = allDayCheckbox.checked;
+      var start = document.getElementById('block-start').value;
+      var end = document.getElementById('block-end').value;
+      var reason = document.getElementById('block-reason').value.trim();
+
       if (!from || !to) {
         status.textContent = 'Bitte Von- und Bis-Datum wählen.';
         status.className = 'admin-status is-error';
         return;
       }
+      if (!allDay && (!start || !end || start >= end)) {
+        status.textContent = 'Bitte eine gültige Start- und Endzeit wählen (Ende nach Start).';
+        status.className = 'admin-status is-error';
+        return;
+      }
       if (to < from) { var tmp = from; from = to; to = tmp; }
 
-      var newDates = [];
+      var newEntries = [];
       var cursor = new Date(from + 'T00:00:00');
-      var end = new Date(to + 'T00:00:00');
-      while (cursor <= end) {
-        newDates.push(toDateStr(cursor));
+      var endDate = new Date(to + 'T00:00:00');
+      while (cursor <= endDate) {
+        var entry = { id: makeId(), date: toDateStr(cursor), allDay: allDay };
+        if (!allDay) { entry.start = start; entry.end = end; }
+        if (reason) entry.reason = reason;
+        newEntries.push(entry);
         cursor.setDate(cursor.getDate() + 1);
       }
 
       status.textContent = 'Speichert …';
       status.className = 'admin-status';
       api('admin-availability').then(function (avail) {
-        var set = {};
-        (avail.blockedDates || []).forEach(function (d) { set[d] = true; });
-        newDates.forEach(function (d) { set[d] = true; });
-        avail.blockedDates = Object.keys(set).sort();
+        avail.absences = (avail.absences || []).concat(newEntries);
         return api('admin-availability', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(avail),
         });
       }).then(function () {
-        status.textContent = 'Eingetragen (' + newDates.length + ' Tag' + (newDates.length === 1 ? '' : 'e') + ').';
+        status.textContent = 'Eingetragen (' + newEntries.length + ' Tag' + (newEntries.length === 1 ? '' : 'e') + ').';
         form.hidden = true;
+        document.getElementById('block-reason').value = '';
         loadCalendarWeek();
+        loadAbsencesList();
       }).catch(function (err) {
         status.textContent = err.message;
         status.className = 'admin-status is-error';
+      });
+    });
+  }
+
+  function loadAbsencesList() {
+    var list = document.getElementById('absences-list');
+    if (!list) return;
+    list.innerHTML = '<p class="admin-list-empty">Lädt …</p>';
+    api('admin-availability').then(function (avail) {
+      var absences = (avail.absences || []).slice().sort(function (a, b) {
+        return (a.date + (a.start || '')).localeCompare(b.date + (b.start || ''));
+      });
+      if (!absences.length) {
+        list.innerHTML = '<p class="admin-list-empty">Keine Abwesenheiten eingetragen.</p>';
+        return;
+      }
+      list.innerHTML = '';
+      absences.forEach(function (a) {
+        var row = document.createElement('div');
+        row.className = 'booking-card';
+        var timeLabel = a.allDay ? 'Ganzer Tag' : (a.start + '–' + a.end + ' Uhr');
+        var reasonHtml = a.reason ? ' — ' + escapeHtml(a.reason) : '';
+        row.innerHTML = '<div><div class="when">' + a.date + '</div><div class="who">' + timeLabel + reasonHtml + '</div></div>';
+        var delBtn = document.createElement('button');
+        delBtn.className = 'cancel-btn';
+        delBtn.textContent = 'Löschen';
+        delBtn.addEventListener('click', function () {
+          api('admin-availability').then(function (current) {
+            current.absences = (current.absences || []).filter(function (x) { return x.id !== a.id; });
+            return api('admin-availability', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(current),
+            });
+          }).then(function () {
+            loadAbsencesList();
+            loadCalendarWeek();
+          });
+        });
+        row.appendChild(delBtn);
+        list.appendChild(row);
       });
     });
   }
@@ -456,6 +534,7 @@
     });
     initBlockTimeForm();
     loadCancellationsLog();
+    loadAbsencesList();
     if (bookingsInitialized) return;
     bookingsInitialized = true;
     loadCalendarWeek();
@@ -474,7 +553,10 @@
   var WEEKDAYS = [['mon', 'Montag'], ['tue', 'Dienstag'], ['wed', 'Mittwoch'], ['thu', 'Donnerstag'], ['fri', 'Freitag'], ['sat', 'Samstag'], ['sun', 'Sonntag']];
   var availabilityInitialized = false;
 
+  var lastLoadedAvailability = null;
+
   function renderAvailabilityFields(avail) {
+    lastLoadedAvailability = avail;
     var wrap = document.getElementById('availability-fields');
     wrap.innerHTML = '';
     WEEKDAYS.forEach(function (pair) {
@@ -495,7 +577,6 @@
     });
     document.getElementById('avail-slot-minutes').value = avail.slotMinutes;
     document.getElementById('avail-weeks-ahead').value = avail.weeksAhead;
-    document.getElementById('avail-blocked').value = (avail.blockedDates || []).join('\n');
   }
 
   function initAvailabilityTab() {
@@ -523,18 +604,23 @@
         status.className = 'admin-status is-error';
         return;
       }
-      var payload = {
-        slotMinutes: parseInt(document.getElementById('avail-slot-minutes').value, 10),
-        weeksAhead: parseInt(document.getElementById('avail-weeks-ahead').value, 10),
-        weekly: weekly,
-        blockedDates: document.getElementById('avail-blocked').value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean),
-      };
       status.textContent = 'Speichert …';
       status.className = 'admin-status';
-      api('admin-availability', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+      // Fetch the current absences fresh (they may have changed on the
+      // Termine tab since this form was last loaded) instead of trusting
+      // a possibly-stale cached copy.
+      api('admin-availability').then(function (fresh) {
+        var payload = {
+          slotMinutes: parseInt(document.getElementById('avail-slot-minutes').value, 10),
+          weeksAhead: parseInt(document.getElementById('avail-weeks-ahead').value, 10),
+          weekly: weekly,
+          absences: fresh.absences || [],
+        };
+        return api('admin-availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
       }).then(function () {
         status.textContent = 'Gespeichert.';
         status.className = 'admin-status';

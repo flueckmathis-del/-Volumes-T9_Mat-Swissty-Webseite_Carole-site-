@@ -10,7 +10,10 @@ export const DEFAULT_AVAILABILITY = {
     sat: [],
     sun: [],
   },
-  blockedDates: [],
+  // Each entry: { id, date: "YYYY-MM-DD", allDay: bool, start?, end?, reason? }
+  // Whole-day absences (Ferien) set allDay:true; partial ones (Mittagspause,
+  // halber Tag) set allDay:false with a start/end time.
+  absences: [],
 };
 
 const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -34,7 +37,9 @@ function minutesToTime(mins) {
 }
 
 export function slotsForDate(dateStr, availability) {
-  if (availability.blockedDates && availability.blockedDates.includes(dateStr)) return [];
+  const absencesForDate = (availability.absences || []).filter((a) => a.date === dateStr);
+  if (absencesForDate.some((a) => a.allDay)) return [];
+
   const key = weekdayKeyFor(dateStr);
   const ranges = (availability.weekly && availability.weekly[key]) || [];
   const slotMinutes = availability.slotMinutes || 60;
@@ -44,7 +49,14 @@ export function slotsForDate(dateStr, availability) {
     let cursor = timeToMinutes(start);
     const endMinutes = timeToMinutes(end);
     while (cursor + slotMinutes <= endMinutes) {
-      slots.push(minutesToTime(cursor));
+      const slotStart = cursor;
+      const slotEnd = cursor + slotMinutes;
+      const blocked = absencesForDate.some((a) => {
+        const aStart = timeToMinutes(a.start);
+        const aEnd = timeToMinutes(a.end);
+        return slotStart < aEnd && slotEnd > aStart; // overlap
+      });
+      if (!blocked) slots.push(minutesToTime(cursor));
       cursor += slotMinutes;
     }
   });

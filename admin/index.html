@@ -106,8 +106,21 @@
           <input type="date" id="block-to">
         </div>
         <div class="admin-row" style="margin-bottom:12px;">
+          <label><input type="checkbox" id="block-all-day" checked style="width:auto; margin-right:8px;"> Ganzer Tag</label>
+        </div>
+        <div id="block-time-range" class="admin-row" hidden style="margin-bottom:12px; display:flex; gap:14px;">
+          <div>
+            <label for="block-start">Von Uhrzeit</label>
+            <input type="time" id="block-start" value="12:00">
+          </div>
+          <div>
+            <label for="block-end">Bis Uhrzeit</label>
+            <input type="time" id="block-end" value="14:00">
+          </div>
+        </div>
+        <div class="admin-row" style="margin-bottom:12px;">
           <label for="block-reason">Grund (optional, nur für dich sichtbar)</label>
-          <input type="text" id="block-reason" placeholder="z.B. Ferien, Weiterbildung, …">
+          <input type="text" id="block-reason" placeholder="z.B. Ferien, Mittagspause, Weiterbildung, …">
         </div>
         <div class="admin-actions">
           <button id="block-save" class="btn" type="button">Eintragen</button>
@@ -118,6 +131,11 @@
 
       <div class="cal-grid-scroll">
         <div id="cal-grid" class="cal-grid"></div>
+      </div>
+
+      <div class="absences-section">
+        <h3>Aktuelle Abwesenheiten</h3>
+        <div id="absences-list" class="admin-list"></div>
       </div>
 
       <details class="cancellations-log">
@@ -138,10 +156,7 @@
         <label for="avail-weeks-ahead">Wie viele Wochen im Voraus buchbar</label>
         <input type="number" id="avail-weeks-ahead" min="1" max="26">
       </div>
-      <div class="admin-row">
-        <label for="avail-blocked">Gesperrte Tage (Ferien etc., ein Datum pro Zeile, Format YYYY-MM-DD)</label>
-        <textarea id="avail-blocked" rows="4"></textarea>
-      </div>
+      <p class="admin-hint">Ferien und andere Abwesenheiten trägst du im Tab „Termine" über den Button „+ Ferien / Abwesenheit eintragen" ein.</p>
       <div class="admin-actions">
         <button id="availability-save" class="btn">Speichern</button>
         <span id="availability-status" class="admin-status"></span>
