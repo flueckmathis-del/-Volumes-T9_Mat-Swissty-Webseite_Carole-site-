@@ -1,0 +1,145 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets"
+public_folder: "assets"
+
+collections:
+  - name: "settings"
+    label: "Kontakt & Fusszeile"
+    files:
+      - file: "content/settings.json"
+        label: "Kontakt & Fusszeile"
+        name: "settings"
+        fields:
+          - { label: "Firmenname (Fusszeile)", name: "brand_name", widget: "string" }
+          - { label: "Kurzname (Navigation)", name: "brand_short", widget: "string" }
+          - { label: "Fusszeile Slogan", name: "footer_tagline", widget: "string" }
+          - { label: "Name (Adresse)", name: "address_name", widget: "string" }
+          - { label: "Strasse", name: "address_street", widget: "string" }
+          - { label: "PLZ / Ort", name: "address_city", widget: "string" }
+          - { label: "Adresse einzeilig (für Fusszeile)", name: "address_line", widget: "string" }
+          - { label: "Telefon (Anzeige)", name: "phone_display", widget: "string" }
+          - { label: "Telefon (Link, Format +41791234567)", name: "phone_link", widget: "string" }
+          - { label: "E-Mail", name: "email", widget: "string" }
+          - { label: "Rechtlicher Hinweis (Fusszeile)", name: "footer_legal_note", widget: "string" }
+          - { label: "Copyright-Zeile", name: "copyright", widget: "string" }
+
+  - name: "home"
+    label: "Startseite"
+    files:
+      - file: "content/home.json"
+        label: "Startseite"
+        name: "home"
+        fields:
+          - { label: "Eyebrow (klein, über dem Zitat)", name: "hero_eyebrow", widget: "string" }
+          - { label: "Zitat", name: "hero_quote", widget: "string" }
+          - { label: "Hauptüberschrift", name: "hero_title", widget: "string" }
+          - { label: "Einleitung — Absatz 1", name: "hero_p1", widget: "text" }
+          - { label: "Einleitung — Absatz 2", name: "hero_p2", widget: "text" }
+          - { label: "Button: Primär", name: "cta_primary", widget: "string" }
+          - { label: "Button: Sekundär", name: "cta_secondary", widget: "string" }
+          - { label: "Portraitfoto", name: "portrait", widget: "image" }
+          - { label: "Teaser 'Über mich': Eyebrow", name: "about_eyebrow", widget: "string" }
+          - { label: "Teaser 'Über mich': Titel", name: "about_title", widget: "string" }
+          - { label: "Teaser 'Über mich': Text", name: "about_text", widget: "text" }
+          - { label: "Teaser 'Über mich': Link-Text", name: "about_link", widget: "string" }
+          - { label: "Kacheln: Eyebrow", name: "services_eyebrow", widget: "string" }
+          - { label: "Kacheln: Titel", name: "services_title", widget: "string" }
+          - { label: "Kachel 1 — Titel", name: "card1_title", widget: "string" }
+          - { label: "Kachel 1 — Text", name: "card1_text", widget: "text" }
+          - { label: "Kachel 1 — Link-Text", name: "card1_link", widget: "string" }
+          - { label: "Kachel 2 — Titel", name: "card2_title", widget: "string" }
+          - { label: "Kachel 2 — Text", name: "card2_text", widget: "text" }
+          - { label: "Kachel 2 — Link-Text", name: "card2_link", widget: "string" }
+          - { label: "Kachel 3 — Titel", name: "card3_title", widget: "string" }
+          - { label: "Kachel 3 — Text", name: "card3_text", widget: "text" }
+          - { label: "Kachel 3 — Link-Text", name: "card3_link", widget: "string" }
+          - { label: "Abschluss-CTA: Titel", name: "cta_title", widget: "string" }
+          - { label: "Abschluss-CTA: Text", name: "cta_text", widget: "text" }
+          - { label: "Abschluss-CTA: Button", name: "cta_button", widget: "string" }
+
+  - name: "about"
+    label: "Über mich"
+    files:
+      - file: "content/about.json"
+        label: "Über mich"
+        name: "about"
+        fields:
+          - { label: "Portraitfoto", name: "portrait", widget: "image" }
+          - { label: "Eyebrow", name: "eyebrow", widget: "string" }
+          - { label: "Titel", name: "title", widget: "string" }
+          - { label: "Zitat / Du-Anrede-Hinweis", name: "quote", widget: "text" }
+          - { label: "Abschnittstitel", name: "section_title", widget: "string" }
+          - { label: "Absatz 1", name: "p1", widget: "text" }
+          - { label: "Absatz 2", name: "p2", widget: "text" }
+          - { label: "Absatz 3", name: "p3", widget: "text" }
+          - { label: "Absatz 4", name: "p4", widget: "text" }
+          - { label: "Button: Primär", name: "cta_primary", widget: "string" }
+          - { label: "Button: Sekundär", name: "cta_secondary", widget: "string" }
+
+  - name: "services"
+    label: "Angebot & Preise"
+    files:
+      - file: "content/services.json"
+        label: "Angebot & Preise"
+        name: "services"
+        fields:
+          - { label: "Eyebrow", name: "eyebrow", widget: "string" }
+          - { label: "Titel", name: "title", widget: "string" }
+          - { label: "Einleitungstext", name: "intro", widget: "text" }
+          - label: "Themen-Liste"
+            name: "topics"
+            widget: "list"
+            field: { label: "Thema", name: "topic", widget: "string" }
+          - { label: "Text: falls kein Angebot passt", name: "fallback_text", widget: "text" }
+          - { label: "Titel Preistabelle", name: "pricing_title", widget: "string" }
+          - label: "Preisliste"
+            name: "pricing"
+            widget: "list"
+            fields:
+              - { label: "Bezeichnung", name: "label", widget: "string" }
+              - { label: "Zusatztext (optional)", name: "note", widget: "string", required: false }
+              - { label: "Preis", name: "price", widget: "string" }
+          - { label: "Hinweis Krankenkasse", name: "insurance_note", widget: "text" }
+          - { label: "Alltag: Eyebrow", name: "alltag_eyebrow", widget: "string" }
+          - { label: "Alltag: Titel", name: "alltag_title", widget: "string" }
+          - { label: "Alltag: Text", name: "alltag_text", widget: "text" }
+          - label: "Alltag: Themen-Liste"
+            name: "alltag_topics"
+            widget: "list"
+            field: { label: "Thema", name: "topic", widget: "string" }
+          - { label: "Alltag: Preis-Bezeichnung", name: "alltag_price_label", widget: "string" }
+          - { label: "Alltag: Preis", name: "alltag_price_value", widget: "string" }
+          - { label: "Abschluss-CTA: Titel", name: "cta_title", widget: "string" }
+          - { label: "Abschluss-CTA: Text", name: "cta_text", widget: "text" }
+          - { label: "Abschluss-CTA: Button", name: "cta_button", widget: "string" }
+
+  - name: "metabolic"
+    label: "Metabolic Typing"
+    files:
+      - file: "content/metabolic.json"
+        label: "Metabolic Typing"
+        name: "metabolic"
+        fields:
+          - { label: "Eyebrow", name: "eyebrow", widget: "string" }
+          - { label: "Titel", name: "title", widget: "string" }
+          - { label: "Erklärungstext", name: "text", widget: "text" }
+          - { label: "Hinweistext (Platzhalter, solange kein Preis feststeht)", name: "note", widget: "text" }
+          - { label: "Button-Text", name: "button", widget: "string" }
+
+  - name: "contact"
+    label: "Kontakt"
+    files:
+      - file: "content/contact.json"
+        label: "Kontakt"
+        name: "contact"
+        fields:
+          - { label: "Eyebrow", name: "eyebrow", widget: "string" }
+          - { label: "Titel", name: "title", widget: "string" }
+          - { label: "Einleitungstext", name: "intro", widget: "text" }
+          - { label: "Hausbesuch-Hinweis", name: "home_visit_note", widget: "text" }
+          - { label: "Button: Route planen", name: "map_button", widget: "string" }
+          - { label: "Hinweistext unter Formular", name: "form_note", widget: "string" }
+          - { label: "Formular-Button-Text", name: "form_button", widget: "string" }
