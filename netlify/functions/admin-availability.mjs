@@ -38,7 +38,7 @@ function validate(body) {
 }
 
 export default async (req) => {
-  if (!isAuthenticated(req)) return json(401, { error: 'Nicht angemeldet.' });
+  if (!(await isAuthenticated(req))) return json(401, { error: 'Nicht angemeldet.' });
   const store = siteStore();
 
   if (req.method === 'GET') {

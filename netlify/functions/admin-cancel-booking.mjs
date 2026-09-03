@@ -2,7 +2,7 @@ import { isAuthenticated } from './_shared/auth.mjs';
 import { siteStore, updateJSON, json } from './_shared/store.mjs';
 
 export default async (req) => {
-  if (!isAuthenticated(req)) return json(401, { error: 'Nicht angemeldet.' });
+  if (!(await isAuthenticated(req))) return json(401, { error: 'Nicht angemeldet.' });
   if (req.method !== 'POST') return json(405, { error: 'Method not allowed' });
 
   let body;

@@ -12,28 +12,79 @@
     });
   }
 
+  var authLoading = document.getElementById('auth-loading');
   var loginScreen = document.getElementById('login-screen');
+  var setupScreen = document.getElementById('setup-screen');
   var appEl = document.getElementById('admin-app');
   var loginForm = document.getElementById('login-form');
   var loginError = document.getElementById('login-error');
+  var setupForm = document.getElementById('setup-form');
+  var setupError = document.getElementById('setup-error');
+
+  function hideAllAuthScreens() {
+    authLoading.hidden = true;
+    loginScreen.hidden = true;
+    setupScreen.hidden = true;
+    appEl.hidden = true;
+  }
 
   function showApp() {
-    loginScreen.hidden = true;
+    hideAllAuthScreens();
     appEl.hidden = false;
     initContentTab();
     initBookingsTab();
     initAvailabilityTab();
     initInsightsTab();
+    initAccountTab();
   }
 
   function showLogin() {
-    appEl.hidden = true;
+    hideAllAuthScreens();
     loginScreen.hidden = false;
   }
 
-  api('admin-me').then(function (data) {
-    if (data.authenticated) showApp(); else showLogin();
+  function showSetup() {
+    hideAllAuthScreens();
+    setupScreen.hidden = false;
+  }
+
+  // First: is a password even configured yet? If not, this is a brand new
+  // site — offer first-time setup instead of a login form. This whole flow
+  // lives on our own site/backend, no external dashboard involved.
+  api('setup-status').then(function (status) {
+    if (!status.configured) {
+      showSetup();
+      return;
+    }
+    return api('admin-me').then(function (data) {
+      if (data.authenticated) showApp(); else showLogin();
+    });
   }).catch(showLogin);
+
+  setupForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    setupError.hidden = true;
+    var password = document.getElementById('setup-password').value;
+    var confirmPassword = document.getElementById('setup-password-confirm').value;
+    fetch(API + 'setup-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ password: password, confirmPassword: confirmPassword }),
+    }).then(function (res) {
+      return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+    }).then(function (result) {
+      if (result.ok) {
+        showApp();
+      } else {
+        setupError.textContent = result.data.error || 'Einrichtung fehlgeschlagen.';
+        setupError.hidden = false;
+      }
+    }).catch(function () {
+      setupError.textContent = 'Server nicht erreichbar.';
+      setupError.hidden = false;
+    });
+  });
 
   loginForm.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -62,6 +113,43 @@
   document.getElementById('logout-btn').addEventListener('click', function () {
     api('logout', { method: 'POST' }).finally(showLogin);
   });
+
+  // ---------- Account (Passwort ändern) ----------
+  var accountInitialized = false;
+  function initAccountTab() {
+    if (accountInitialized) return;
+    accountInitialized = true;
+    var status = document.getElementById('change-password-status');
+    document.getElementById('change-password-save').addEventListener('click', function () {
+      var current = document.getElementById('current-password').value;
+      var next = document.getElementById('new-password').value;
+      var confirm = document.getElementById('new-password-confirm').value;
+      if (!next || next.length < 8) {
+        status.textContent = 'Neues Passwort muss mindestens 8 Zeichen haben.';
+        status.className = 'admin-status is-error';
+        return;
+      }
+      if (next !== confirm) {
+        status.textContent = 'Die neuen Passwörter stimmen nicht überein.';
+        status.className = 'admin-status is-error';
+        return;
+      }
+      status.textContent = 'Speichert …';
+      status.className = 'admin-status';
+      api('change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: current, newPassword: next, confirmPassword: confirm }),
+      }).then(function () {
+        status.textContent = 'Passwort geändert.';
+        status.className = 'admin-status';
+        document.getElementById('change-password-form').reset();
+      }).catch(function (err) {
+        status.textContent = err.message;
+        status.className = 'admin-status is-error';
+      });
+    });
+  }
 
   // ---------- Tabs ----------
   document.querySelectorAll('.admin-tab').forEach(function (tab) {

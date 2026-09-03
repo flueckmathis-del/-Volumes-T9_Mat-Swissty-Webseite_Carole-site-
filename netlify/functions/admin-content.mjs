@@ -5,7 +5,7 @@ import { ALL } from './_shared/defaults.mjs';
 const ALLOWED_PAGES = ['settings', 'home', 'about', 'services', 'metabolic', 'contact'];
 
 export default async (req) => {
-  if (!isAuthenticated(req)) return json(401, { error: 'Nicht angemeldet.' });
+  if (!(await isAuthenticated(req))) return json(401, { error: 'Nicht angemeldet.' });
   const store = siteStore();
   const url = new URL(req.url);
 

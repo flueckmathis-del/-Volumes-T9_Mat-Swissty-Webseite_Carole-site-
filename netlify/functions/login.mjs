@@ -1,4 +1,5 @@
 import { setSessionCookieHeader } from './_shared/auth.mjs';
+import { getCredentials, verifyPassword } from './_shared/credentials.mjs';
 import { json } from './_shared/store.mjs';
 
 export default async (req) => {
@@ -11,18 +12,14 @@ export default async (req) => {
     return json(400, { error: 'Ungültige Anfrage.' });
   }
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) {
-    return json(500, { error: 'Server ist nicht konfiguriert (ADMIN_PASSWORD fehlt).' });
+  const creds = await getCredentials();
+  if (!creds || !creds.hash) {
+    return json(400, { error: 'Es wurde noch kein Admin-Passwort eingerichtet.', needsSetup: true });
   }
 
-  if (!body || body.password !== adminPassword) {
+  if (!body || !verifyPassword(body.password, creds.salt, creds.hash)) {
     return json(401, { error: 'Falsches Passwort.' });
   }
 
-  return json(
-    200,
-    { ok: true },
-    { 'Set-Cookie': setSessionCookieHeader() }
-  );
+  return json(200, { ok: true }, { 'Set-Cookie': await setSessionCookieHeader() });
 };

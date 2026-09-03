@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { getCredentials } from './credentials.mjs';
 
 const COOKIE_NAME = 'admin_session';
 const SESSION_DAYS = 14;
@@ -7,23 +8,32 @@ function b64url(input) {
   return Buffer.from(input).toString('base64url');
 }
 
-function getSecret() {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) throw new Error('ADMIN_SECRET ist nicht gesetzt (Netlify-Umgebungsvariable fehlt).');
-  return secret;
+async function getSessionSecret() {
+  const creds = await getCredentials();
+  if (!creds || !creds.sessionSecret) {
+    throw new Error('Es wurde noch kein Admin-Passwort eingerichtet.');
+  }
+  return creds.sessionSecret;
 }
 
-export function createSessionToken() {
+export async function createSessionToken() {
+  const secret = await getSessionSecret();
   const payload = JSON.stringify({ exp: Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000 });
   const payloadB64 = b64url(payload);
-  const signature = createHmac('sha256', getSecret()).update(payloadB64).digest('base64url');
+  const signature = createHmac('sha256', secret).update(payloadB64).digest('base64url');
   return `${payloadB64}.${signature}`;
 }
 
-export function verifySessionToken(token) {
+export async function verifySessionToken(token) {
   if (!token || typeof token !== 'string' || !token.includes('.')) return false;
+  let secret;
+  try {
+    secret = await getSessionSecret();
+  } catch {
+    return false;
+  }
   const [payloadB64, signature] = token.split('.');
-  const expected = createHmac('sha256', getSecret()).update(payloadB64).digest('base64url');
+  const expected = createHmac('sha256', secret).update(payloadB64).digest('base64url');
   const a = Buffer.from(signature || '');
   const b = Buffer.from(expected);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return false;
@@ -48,13 +58,13 @@ export function parseCookies(req) {
   return cookies;
 }
 
-export function isAuthenticated(req) {
+export async function isAuthenticated(req) {
   const cookies = parseCookies(req);
   return verifySessionToken(cookies[COOKIE_NAME]);
 }
 
-export function setSessionCookieHeader() {
-  const token = createSessionToken();
+export async function setSessionCookieHeader() {
+  const token = await createSessionToken();
   const maxAge = SESSION_DAYS * 24 * 60 * 60;
   return `${COOKIE_NAME}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
 }

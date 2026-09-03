@@ -2,7 +2,7 @@ import { isAuthenticated } from './_shared/auth.mjs';
 import { siteStore, readJSON, json } from './_shared/store.mjs';
 
 export default async (req) => {
-  if (!isAuthenticated(req)) return json(401, { error: 'Nicht angemeldet.' });
+  if (!(await isAuthenticated(req))) return json(401, { error: 'Nicht angemeldet.' });
 
   const store = siteStore();
   const log = await readJSON(store, 'cancellations.json', []);

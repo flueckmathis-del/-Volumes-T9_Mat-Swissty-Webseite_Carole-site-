@@ -14,7 +14,7 @@
 </head>
 <body class="admin-body">
 
-<div id="login-screen" class="admin-login">
+<div id="login-screen" class="admin-login" hidden>
   <div class="admin-login-card">
     <img src="../assets/logo.png" alt="Logo" class="admin-logo">
     <h1>Admin-Bereich</h1>
@@ -28,6 +28,29 @@
   </div>
 </div>
 
+<div id="setup-screen" class="admin-login" hidden>
+  <div class="admin-login-card">
+    <img src="../assets/logo.png" alt="Logo" class="admin-logo">
+    <h1>Admin-Bereich einrichten</h1>
+    <p>Es ist noch kein Passwort eingerichtet. Leg jetzt eines fest — das reicht, kein weiterer Dienst nötig.</p>
+    <form id="setup-form">
+      <label for="setup-password">Neues Passwort (mind. 8 Zeichen)</label>
+      <input type="password" id="setup-password" required minlength="8" autocomplete="new-password">
+      <label for="setup-password-confirm">Passwort bestätigen</label>
+      <input type="password" id="setup-password-confirm" required minlength="8" autocomplete="new-password">
+      <button type="submit" class="btn">Passwort festlegen &amp; einloggen</button>
+      <p id="setup-error" class="admin-error" hidden></p>
+    </form>
+  </div>
+</div>
+
+<div id="auth-loading" class="admin-login">
+  <div class="admin-login-card">
+    <img src="../assets/logo.png" alt="Logo" class="admin-logo">
+    <p style="margin-bottom:0;">Lädt …</p>
+  </div>
+</div>
+
 <div id="admin-app" class="admin-app" hidden>
   <header class="admin-header">
     <div class="admin-header-inner">
@@ -37,6 +60,7 @@
         <button class="admin-tab" data-tab="bookings">Termine</button>
         <button class="admin-tab" data-tab="availability">Verfügbarkeit</button>
         <button class="admin-tab" data-tab="insights">Insights</button>
+        <button class="admin-tab" data-tab="account">Konto</button>
       </nav>
       <button id="logout-btn" class="btn btn-outline">Abmelden</button>
     </div>
@@ -173,6 +197,29 @@
       <div id="insights-chart" class="admin-chart"></div>
       <h3>Meistbesuchte Seiten</h3>
       <div id="insights-top-pages" class="admin-list"></div>
+    </section>
+
+    <section id="panel-account" class="admin-panel" hidden>
+      <h2>Konto</h2>
+      <p class="admin-hint">Ändere hier das Passwort für den Admin-Zugang. Alle Personen mit dem alten Passwort werden dadurch nicht automatisch ausgeloggt, kennen aber das neue Passwort nicht mehr.</p>
+      <form id="change-password-form" class="admin-fields" style="max-width:360px;">
+        <div class="admin-field">
+          <label for="current-password">Aktuelles Passwort</label>
+          <input type="password" id="current-password" autocomplete="current-password" required>
+        </div>
+        <div class="admin-field">
+          <label for="new-password">Neues Passwort (mind. 8 Zeichen)</label>
+          <input type="password" id="new-password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <div class="admin-field">
+          <label for="new-password-confirm">Neues Passwort bestätigen</label>
+          <input type="password" id="new-password-confirm" autocomplete="new-password" minlength="8" required>
+        </div>
+      </form>
+      <div class="admin-actions">
+        <button id="change-password-save" class="btn" type="button">Passwort ändern</button>
+        <span id="change-password-status" class="admin-status"></span>
+      </div>
     </section>
 
   </main>

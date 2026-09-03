@@ -8,7 +8,7 @@ function addDays(dateStr, days) {
 }
 
 export default async (req) => {
-  if (!isAuthenticated(req)) return json(401, { error: 'Nicht angemeldet.' });
+  if (!(await isAuthenticated(req))) return json(401, { error: 'Nicht angemeldet.' });
 
   const url = new URL(req.url);
   const days = Math.min(parseInt(url.searchParams.get('days') || '30', 10) || 30, 90);

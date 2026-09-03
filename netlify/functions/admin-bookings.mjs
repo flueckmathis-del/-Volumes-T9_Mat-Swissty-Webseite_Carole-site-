@@ -15,7 +15,7 @@ function diffDays(a, b) {
 }
 
 export default async (req) => {
-  if (!isAuthenticated(req)) return json(401, { error: 'Nicht angemeldet.' });
+  if (!(await isAuthenticated(req))) return json(401, { error: 'Nicht angemeldet.' });
 
   const url = new URL(req.url);
   const today = new Date().toISOString().slice(0, 10);
