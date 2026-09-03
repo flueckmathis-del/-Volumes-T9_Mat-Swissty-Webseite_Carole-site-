@@ -16,7 +16,7 @@ export default async (req) => {
     return json(400, { error: 'Ungültige Anfrage.' });
   }
 
-  const { date, time, name, email, message } = body || {};
+  const { date, time, name, email, phone, message } = body || {};
 
   if (!date || !DATE_RE.test(date)) return json(400, { error: 'Ungültiges Datum.' });
   if (!time || !TIME_RE.test(time)) return json(400, { error: 'Ungültige Uhrzeit.' });
@@ -40,6 +40,7 @@ export default async (req) => {
     time,
     name: String(name).trim().slice(0, 200),
     email: String(email).trim().slice(0, 200),
+    phone: phone ? String(phone).trim().slice(0, 50) : '',
     message: message ? String(message).trim().slice(0, 2000) : '',
     createdAt: new Date().toISOString(),
   };

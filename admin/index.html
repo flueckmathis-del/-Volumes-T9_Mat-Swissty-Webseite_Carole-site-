@@ -93,11 +93,37 @@
         <button id="cal-today" class="btn btn-outline" type="button">Heute</button>
         <button id="cal-next" class="btn btn-outline" type="button">Nächste Woche →</button>
         <div id="cal-week-label" class="cal-week-label"></div>
+        <button id="block-time-btn" class="btn" type="button" style="margin-left:auto;">+ Ferien / Abwesenheit eintragen</button>
+      </div>
+
+      <div id="block-time-form" class="block-time-form" hidden>
+        <div class="admin-row" style="margin-bottom:12px;">
+          <label for="block-from">Von</label>
+          <input type="date" id="block-from">
+        </div>
+        <div class="admin-row" style="margin-bottom:12px;">
+          <label for="block-to">Bis (gleiches Datum = nur ein Tag)</label>
+          <input type="date" id="block-to">
+        </div>
+        <div class="admin-row" style="margin-bottom:12px;">
+          <label for="block-reason">Grund (optional, nur für dich sichtbar)</label>
+          <input type="text" id="block-reason" placeholder="z.B. Ferien, Weiterbildung, …">
+        </div>
+        <div class="admin-actions">
+          <button id="block-save" class="btn" type="button">Eintragen</button>
+          <button id="block-cancel" class="btn btn-outline" type="button">Abbrechen</button>
+          <span id="block-status" class="admin-status"></span>
+        </div>
       </div>
 
       <div class="cal-grid-scroll">
         <div id="cal-grid" class="cal-grid"></div>
       </div>
+
+      <details class="cancellations-log">
+        <summary>Absagen-Verlauf anzeigen</summary>
+        <div id="cancellations-list" class="admin-list"></div>
+      </details>
     </section>
 
     <section id="panel-availability" class="admin-panel" hidden>

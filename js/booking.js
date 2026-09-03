@@ -79,6 +79,7 @@
     }
     var name = document.getElementById('name').value.trim();
     var email = document.getElementById('email').value.trim();
+    var phone = document.getElementById('phone').value.trim();
     var message = document.getElementById('message').value.trim();
     if (!name || !email) {
       setStatus('Bitte Name und E-Mail-Adresse angeben.', true);
@@ -92,7 +93,7 @@
     fetch('/.netlify/functions/book', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: dateInput.value, time: selectedTime, name: name, email: email, message: message }),
+      body: JSON.stringify({ date: dateInput.value, time: selectedTime, name: name, email: email, phone: phone, message: message }),
     })
       .then(function (res) {
         return res.json().then(function (data) { return { ok: res.ok, data: data }; });

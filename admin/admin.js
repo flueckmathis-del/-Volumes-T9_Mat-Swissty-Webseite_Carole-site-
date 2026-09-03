@@ -268,9 +268,25 @@
     var to = toDateStr(addDaysLocal(currentWeekStart, 6));
 
     var tasks = [api('admin-bookings?from=' + from + '&to=' + to)];
-    tasks.push(api('admin-availability').then(function (a) { calSlotMinutes = a.slotMinutes || 60; }).catch(function () {}));
+    var blockedDates = [];
+    tasks.push(api('admin-availability').then(function (a) {
+      calSlotMinutes = a.slotMinutes || 60;
+      blockedDates = a.blockedDates || [];
+    }).catch(function () {}));
 
     Promise.all(tasks).then(function (results) {
+      blockedDates.forEach(function (dateStr) {
+        var dayIndex = Math.round((new Date(dateStr + 'T00:00:00') - currentWeekStart) / 86400000);
+        if (dayIndex < 0 || dayIndex > 6) return;
+        var col = document.querySelector('.cal-day-col[data-day-index="' + dayIndex + '"]');
+        if (!col) return;
+        col.classList.add('is-blocked');
+        var label = document.createElement('div');
+        label.className = 'cal-blocked-label';
+        label.textContent = 'Abwesend';
+        col.appendChild(label);
+      });
+
       var bookings = results[0].bookings || [];
       bookings.forEach(function (b) {
         var dayIndex = Math.round((new Date(b.date + 'T00:00:00') - currentWeekStart) / 86400000);
@@ -301,13 +317,24 @@
     closeCalPopover();
     var pop = document.createElement('div');
     pop.className = 'cal-popover';
-    var msg = booking.message ? '<div class="msg">' + escapeHtml(booking.message) + '</div>' : '';
+    var msg = booking.message ? '<div class="msg">„' + escapeHtml(booking.message) + '“</div>' : '';
+    var phoneLine = booking.phone ? '<br><a href="tel:' + escapeHtml(booking.phone) + '">' + escapeHtml(booking.phone) + '</a>' : '';
     pop.innerHTML =
       '<button class="close-btn" type="button">×</button>' +
       '<div class="when">' + booking.date + ' · ' + booking.time + ' Uhr</div>' +
-      '<div>' + escapeHtml(booking.name) + '<br><a href="mailto:' + escapeHtml(booking.email) + '">' + escapeHtml(booking.email) + '</a></div>' +
+      '<div>' + escapeHtml(booking.name) + '<br><a href="mailto:' + escapeHtml(booking.email) + '">' + escapeHtml(booking.email) + '</a>' + phoneLine + '</div>' +
       msg +
-      '<div><button class="cancel-btn" type="button">Termin absagen</button></div>';
+      '<div class="cal-popover-view">' +
+      '<button class="cancel-btn" type="button">Termin absagen</button>' +
+      '</div>' +
+      '<div class="cal-popover-cancel-form" hidden>' +
+      '<label for="cancel-reason">Begründung (optional, nur für dich sichtbar)</label>' +
+      '<textarea id="cancel-reason" rows="3" placeholder="z.B. Kundin hat abgesagt, Krankheit, …"></textarea>' +
+      '<div class="cal-popover-cancel-actions">' +
+      '<button class="cancel-confirm-btn" type="button">Absage bestätigen</button>' +
+      '<button class="cancel-back-btn" type="button">Zurück</button>' +
+      '</div>' +
+      '</div>';
 
     document.getElementById('cal-grid').appendChild(pop);
     var anchorRect = anchorEl.getBoundingClientRect();
@@ -317,12 +344,100 @@
 
     pop.querySelector('.close-btn').addEventListener('click', closeCalPopover);
     pop.querySelector('.cancel-btn').addEventListener('click', function () {
-      if (!confirm('Termin am ' + booking.date + ' um ' + booking.time + ' Uhr wirklich absagen?')) return;
+      pop.querySelector('.cal-popover-view').hidden = true;
+      pop.querySelector('.cal-popover-cancel-form').hidden = false;
+      pop.querySelector('#cancel-reason').focus();
+    });
+    pop.querySelector('.cancel-back-btn').addEventListener('click', function () {
+      pop.querySelector('.cal-popover-cancel-form').hidden = true;
+      pop.querySelector('.cal-popover-view').hidden = false;
+    });
+    pop.querySelector('.cancel-confirm-btn').addEventListener('click', function () {
+      var reason = pop.querySelector('#cancel-reason').value.trim();
       api('admin-cancel-booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: booking.date, id: booking.id }),
-      }).then(loadCalendarWeek);
+        body: JSON.stringify({ date: booking.date, id: booking.id, reason: reason }),
+      }).then(function () {
+        loadCalendarWeek();
+        loadCancellationsLog();
+      });
+    });
+  }
+
+  function loadCancellationsLog() {
+    var list = document.getElementById('cancellations-list');
+    if (!list) return;
+    api('admin-cancellations').then(function (data) {
+      var items = data.cancellations || [];
+      if (!items.length) {
+        list.innerHTML = '<p class="admin-list-empty">Noch keine Absagen.</p>';
+        return;
+      }
+      list.innerHTML = items.map(function (c) {
+        var reason = c.reason ? '<div class="reason">Grund: ' + escapeHtml(c.reason) + '</div>' : '';
+        return '<div class="cancel-log-row"><div class="when">' + c.date + ' · ' + c.time + ' Uhr — ' + escapeHtml(c.name) + '</div>' + reason + '</div>';
+      }).join('');
+    });
+  }
+
+  // ---------- Block time (Ferien / Abwesenheit) ----------
+  function initBlockTimeForm() {
+    var btn = document.getElementById('block-time-btn');
+    var form = document.getElementById('block-time-form');
+    var status = document.getElementById('block-status');
+
+    btn.addEventListener('click', function () {
+      form.hidden = !form.hidden;
+      if (!form.hidden) {
+        var fromInput = document.getElementById('block-from');
+        var toInput = document.getElementById('block-to');
+        if (!fromInput.value) fromInput.value = toDateStr(new Date());
+        if (!toInput.value) toInput.value = fromInput.value;
+      }
+    });
+    document.getElementById('block-cancel').addEventListener('click', function () {
+      form.hidden = true;
+      status.textContent = '';
+    });
+    document.getElementById('block-save').addEventListener('click', function () {
+      var from = document.getElementById('block-from').value;
+      var to = document.getElementById('block-to').value;
+      if (!from || !to) {
+        status.textContent = 'Bitte Von- und Bis-Datum wählen.';
+        status.className = 'admin-status is-error';
+        return;
+      }
+      if (to < from) { var tmp = from; from = to; to = tmp; }
+
+      var newDates = [];
+      var cursor = new Date(from + 'T00:00:00');
+      var end = new Date(to + 'T00:00:00');
+      while (cursor <= end) {
+        newDates.push(toDateStr(cursor));
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      status.textContent = 'Speichert …';
+      status.className = 'admin-status';
+      api('admin-availability').then(function (avail) {
+        var set = {};
+        (avail.blockedDates || []).forEach(function (d) { set[d] = true; });
+        newDates.forEach(function (d) { set[d] = true; });
+        avail.blockedDates = Object.keys(set).sort();
+        return api('admin-availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(avail),
+        });
+      }).then(function () {
+        status.textContent = 'Eingetragen (' + newDates.length + ' Tag' + (newDates.length === 1 ? '' : 'e') + ').';
+        form.hidden = true;
+        loadCalendarWeek();
+      }).catch(function (err) {
+        status.textContent = err.message;
+        status.className = 'admin-status is-error';
+      });
     });
   }
 
@@ -339,6 +454,8 @@
       currentWeekStart = mondayOf(new Date());
       loadCalendarWeek();
     });
+    initBlockTimeForm();
+    loadCancellationsLog();
     if (bookingsInitialized) return;
     bookingsInitialized = true;
     loadCalendarWeek();
