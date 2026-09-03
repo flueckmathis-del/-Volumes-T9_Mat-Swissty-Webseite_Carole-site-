@@ -1,0 +1,41 @@
+{
+  "eyebrow": "Angebot & Preise",
+  "title": "Ernährungsberatung",
+  "intro": "Du möchtest dich gesünder ernähren? Möchtest du Gewicht zunehmen oder abnehmen? Möchtest du deine Ernährung trotz Erkrankung oder Unverträglichkeit möglichst abwechslungsreich gestalten? Hast du Menstruations- oder Wechseljahrbeschwerden? Hast du Verdauungsbeschwerden? Oder fühlst du dich einfach nicht wohl? Oder sonstige Bedürfnisse? Dann bist du bei mir genau richtig.",
+  "topics": [
+    "Individuelle Ernährungsumstellung",
+    "Gewichtsmanagement",
+    "Antientzündliche Ernährung",
+    "Darmgesundheit",
+    "Ernährung in der zweiten Lebenshälfte",
+    "Zyklusorientierte Ernährung",
+    "Ernährung in den Wechseljahren / Begleitung in der Schwangerschaft",
+    "Sporternährung",
+    "Individuelle Menupläne"
+  ],
+  "fallback_text": "Falls keines meiner Angebote zu deinen Bedürfnissen passt, melde dich gerne bei mir. Gemeinsam erarbeiten wir ein individuelles Angebot, das auf dich und deine Ziele abgestimmt ist.",
+  "pricing_title": "Preise",
+  "pricing": [
+    { "label": "Kontakt ca. 15 Min.", "note": "Du erzählst mir von deinen Zielen, Wünschen und persönlichen Bedürfnissen & wir schauen gemeinsam, ob ich dich auf deinem Weg unterstützen/begleiten kann.", "price": "gratis" },
+    { "label": "Erstberatung à 60 Min.", "note": "Anamnese, persönliche Ziele & nächste Schritte, passende Themen und erste Umsetzungsmöglichkeiten.", "price": "CHF 125.–" },
+    { "label": "Folgeberatung à 45 Min.", "note": "", "price": "CHF 95.–" },
+    { "label": "Päckli 3× Folgeberatung", "note": "", "price": "CHF 270.–" },
+    { "label": "Päckli 5× Folgeberatung", "note": "", "price": "CHF 435.–" },
+    { "label": "Päckli 7× Folgeberatung", "note": "", "price": "CHF 600.–" },
+    { "label": "Päckli 9× Folgeberatung", "note": "", "price": "CHF 760.–" }
+  ],
+  "insurance_note": "Die Kosten für meine Ernährungsberatung werden derzeit noch nicht von den Krankenkassen übernommen. Weitere Informationen folgen.",
+  "alltag_eyebrow": "Ab der ersten Folgeberatung möglich",
+  "alltag_title": "Gemeinsam im Alltag",
+  "alltag_text": "Gesunde Ernährung soll nicht kompliziert sein – sie soll in deinen Alltag passen. Gemeinsam schauen wir, wie du beim Einkaufen bewusste Entscheidungen triffst und einfache, ausgewogene Mahlzeiten zubereitest. Dabei bekommst du praktische Tipps, die du auch im Alltag selbstständig umsetzen kannst.",
+  "alltag_topics": [
+    "Bewusst Einkaufen",
+    "Küche aufräumen & idealen Vorratsschrank einrichten",
+    "Kochen und ausprobieren"
+  ],
+  "alltag_price_label": "Begleitung à 60 Min.",
+  "alltag_price_value": "CHF 85.– + Anfahrtspauschale",
+  "cta_title": "Noch unsicher, was zu dir passt?",
+  "cta_text": "Im kostenlosen Telefongespräch finden wir es gemeinsam heraus.",
+  "cta_button": "Kontakt aufnehmen"
+}
