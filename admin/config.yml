@@ -1,6 +1,12 @@
+# Auth-Backend: DecapBridge (Ersatz für das von Netlify eingestellte "Git Gateway").
+# Die zwei URLs unten bekommst du im DecapBridge-Dashboard, nachdem du dort
+# deine Site + dein GitHub-Repo registriert hast (siehe Anleitung im Chat).
+# Trag sie hier anstelle der Platzhalter ein.
 backend:
   name: git-gateway
   branch: main
+  identity_url: "https://REPLACE-WITH-YOUR-DECAPBRIDGE-IDENTITY-URL"
+  gateway_url: "https://REPLACE-WITH-YOUR-DECAPBRIDGE-GATEWAY-URL"
 
 media_folder: "assets"
 public_folder: "assets"
