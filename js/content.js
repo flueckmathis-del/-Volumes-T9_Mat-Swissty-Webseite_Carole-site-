@@ -52,7 +52,9 @@
       var label = escapeHtml(row.label || '');
       var note = row.note ? ' — <em>' + escapeHtml(row.note) + '</em>' : '';
       var price = escapeHtml(row.price || '');
-      return '<tr><td>' + label + note + '</td><td class="amount">' + price + '</td></tr>';
+      var badge = row.highlight ? ' <span class="badge-popular">Beliebt</span>' : '';
+      var rowClass = row.highlight ? ' class="row-highlight"' : '';
+      return '<tr' + rowClass + '><td>' + label + badge + note + '</td><td class="amount">' + price + '</td></tr>';
     }).join('');
   }
 

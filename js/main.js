@@ -1,9 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // Sanftes Einblenden der Seite.
+  requestAnimationFrame(function () {
+    document.body.classList.add('is-loaded');
+  });
+
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
   if (toggle && nav) {
     toggle.addEventListener('click', function () {
       nav.classList.toggle('open');
+      toggle.classList.toggle('open');
     });
   }
 
@@ -40,4 +46,23 @@ document.addEventListener('DOMContentLoaded', function () {
       revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
     }
   }
+
+  // "Nach oben"-Button.
+  var backToTop = document.createElement('button');
+  backToTop.className = 'back-to-top';
+  backToTop.setAttribute('aria-label', 'Nach oben scrollen');
+  backToTop.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>';
+  document.body.appendChild(backToTop);
+  backToTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  var updateBackToTop = function () {
+    if (window.scrollY > 700) {
+      backToTop.classList.add('visible');
+    } else {
+      backToTop.classList.remove('visible');
+    }
+  };
+  updateBackToTop();
+  window.addEventListener('scroll', updateBackToTop, { passive: true });
 });

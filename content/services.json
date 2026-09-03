@@ -20,7 +20,7 @@
     { "label": "Erstberatung à 60 Min.", "note": "Anamnese, persönliche Ziele & nächste Schritte, passende Themen und erste Umsetzungsmöglichkeiten.", "price": "CHF 125.–" },
     { "label": "Folgeberatung à 45 Min.", "note": "", "price": "CHF 95.–" },
     { "label": "Päckli 3× Folgeberatung", "note": "", "price": "CHF 270.–" },
-    { "label": "Päckli 5× Folgeberatung", "note": "", "price": "CHF 435.–" },
+    { "label": "Päckli 5× Folgeberatung", "note": "", "price": "CHF 435.–", "highlight": true },
     { "label": "Päckli 7× Folgeberatung", "note": "", "price": "CHF 600.–" },
     { "label": "Päckli 9× Folgeberatung", "note": "", "price": "CHF 760.–" }
   ],
