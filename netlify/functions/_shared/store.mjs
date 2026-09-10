@@ -1,7 +1,13 @@
 import { getStore } from '@netlify/blobs';
 
 export function siteStore() {
-  return getStore('site-data');
+  // 'strong' consistency: without it, reads can come back from an edge
+  // cache that lags behind the most recent write (Netlify Blobs defaults
+  // to 'eventual'). updateJSON()'s etag compare-and-swap below depends on
+  // reading the truly-current etag, or every retry conflicts forever —
+  // only shows up against real production Blobs, not the local dev
+  // emulator, which is why this went unnoticed until the first real deploy.
+  return getStore({ name: 'site-data', consistency: 'strong' });
 }
 
 export async function readJSON(store, key, fallback) {
