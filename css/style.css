@@ -480,7 +480,11 @@ section.alt { background: var(--color-bg-alt); }
 }
 .price-table th { font-family: var(--font-head); color: var(--color-brand-dark); font-size: 1rem; }
 .price-table tr:last-child td { border-bottom: none; }
-.price-table td.amount { text-align: right; font-weight: 700; white-space: nowrap; }
+/* Kein white-space:nowrap mehr — bei kurzen Preisen ("CHF 125.–") bricht
+   das ohnehin nie um, aber ein längerer Text wie "CHF 85.– +
+   Anfahrtspauschale" wurde dadurch auf schmalen Bildschirmen abgeschnitten
+   statt umzubrechen. */
+.price-table td.amount { text-align: right; font-weight: 700; }
 .price-table tr.row-highlight { background: rgba(111,121,85,0.08); }
 .price-table tr.row-highlight td.amount { color: var(--color-sage); }
 .badge-popular {
