@@ -260,7 +260,10 @@ nav.main-nav a:hover { color: var(--color-brand); }
 .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 .site-header.has-hero-photo.at-top .nav-toggle span { background: #FFFDFA; }
 
-@media (max-width: 780px) {
+/* 1180px statt z.B. 780px: 6 Menüpunkte + Logo + "Termin anfragen"-Button
+   passen auf iPad-Breiten (1024–1194px) nicht mehr nebeneinander auf eine
+   Zeile — darunter lieber das Burger-Menü statt umgebrochenem Text. */
+@media (max-width: 1180px) {
   nav.main-nav {
     position: absolute;
     top: 100%;
