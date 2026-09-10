@@ -1,8 +1,43 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { getCredentials } from './credentials.mjs';
+import { siteStore, readJSON, updateJSON } from './store.mjs';
 
 const COOKIE_NAME = 'admin_session';
 const SESSION_DAYS = 14;
+
+// Brute-force protection for /login: there's only ever one admin account
+// on this site, so a single global lockout (rather than per-IP tracking,
+// which real attackers just route around) is both simpler and stronger.
+const LOGIN_ATTEMPTS_KEY = 'admin-login-attempts.json';
+const MAX_ATTEMPTS_BEFORE_LOCKOUT = 5;
+const LOCKOUT_STEPS_MS = [30_000, 60_000, 5 * 60_000, 15 * 60_000];
+
+export async function checkLoginLockout() {
+  const store = siteStore();
+  const state = await readJSON(store, LOGIN_ATTEMPTS_KEY, { failedCount: 0, lockedUntil: 0 });
+  if (state.lockedUntil > Date.now()) {
+    return { locked: true, retryAfterSeconds: Math.ceil((state.lockedUntil - Date.now()) / 1000) };
+  }
+  return { locked: false };
+}
+
+export async function recordLoginFailure() {
+  const store = siteStore();
+  await updateJSON(store, LOGIN_ATTEMPTS_KEY, { failedCount: 0, lockedUntil: 0 }, (current) => {
+    const failedCount = current.failedCount + 1;
+    let lockedUntil = current.lockedUntil;
+    if (failedCount >= MAX_ATTEMPTS_BEFORE_LOCKOUT) {
+      const stepIndex = Math.min(failedCount - MAX_ATTEMPTS_BEFORE_LOCKOUT, LOCKOUT_STEPS_MS.length - 1);
+      lockedUntil = Date.now() + LOCKOUT_STEPS_MS[stepIndex];
+    }
+    return { failedCount, lockedUntil };
+  });
+}
+
+export async function recordLoginSuccess() {
+  const store = siteStore();
+  await updateJSON(store, LOGIN_ATTEMPTS_KEY, { failedCount: 0, lockedUntil: 0 }, () => ({ failedCount: 0, lockedUntil: 0 }));
+}
 
 function b64url(input) {
   return Buffer.from(input).toString('base64url');
