@@ -49,10 +49,15 @@ function cbInitReveal(root) {
 window.CBMain = { initReveal: cbInitReveal, initHeroPhotoHeader: cbInitHeroPhotoHeader };
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Sanftes Einblenden der Seite.
-  requestAnimationFrame(function () {
+  // Das Einblenden übernimmt jetzt js/sections.js, sobald die Sektionen
+  // tatsächlich im DOM stehen (sonst zeigt der Fade-in kurz eine leere
+  // Seite mit hochgerutschtem Footer, der dann sichtbar nach unten
+  // springt, sobald die Inhalte nachgeladen sind). Falls sections.js aus
+  // irgendeinem Grund nie feuert (z.B. Skript-Fehler), diese Sicherung
+  // nach 2s trotzdem einblenden, statt die Seite dauerhaft leer zu lassen.
+  setTimeout(function () {
     document.body.classList.add('is-loaded');
-  });
+  }, 2000);
 
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');

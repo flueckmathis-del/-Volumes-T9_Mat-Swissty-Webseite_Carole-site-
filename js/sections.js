@@ -47,9 +47,18 @@
           if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
         }
         document.dispatchEvent(new CustomEvent('cms:sections-loaded', { detail: { page: page, sections: sections } }));
+        // Erst jetzt einblenden (Sektionen stehen im finalen Layout im DOM)
+        // — sonst zeigt der Fade-in kurz eine leere Seite mit hochgerutschtem
+        // Footer, der dann sichtbar nach unten springt.
+        requestAnimationFrame(function () { document.body.classList.add('is-loaded'); });
         return sections;
       })
-      .catch(function () { return []; });
+      .catch(function () {
+        // Fetch fehlgeschlagen — Seite trotzdem einblenden (leer ist besser
+        // als dauerhaft unsichtbar), main.js' 2s-Fallback greift sonst.
+        requestAnimationFrame(function () { document.body.classList.add('is-loaded'); });
+        return [];
+      });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
