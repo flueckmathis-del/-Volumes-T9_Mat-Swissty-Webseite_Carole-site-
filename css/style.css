@@ -271,7 +271,10 @@ nav.main-nav a:hover { color: var(--color-brand); }
     width: 100%;
     border-top: 1px solid rgba(58,51,44,0.06);
   }
-  nav.main-nav .btn { margin: 14px 32px; }
+  /* .btn erbt width:100% von der Regel oben — zusammen mit dem Rand hier
+     würde er ohne width-Korrektur 64px breiter werden als der Bildschirm
+     und rechts über den Rand hinausragen. */
+  nav.main-nav .btn { width: calc(100% - 64px); margin: 14px 32px; }
   .nav-toggle { display: block; }
 }
 
