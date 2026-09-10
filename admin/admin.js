@@ -3,12 +3,19 @@
 
   var API = '/.netlify/functions/';
 
+  // Raw fetch + JSON parse, without throwing on non-2xx — callers that need
+  // to inspect the error body (setup, login) use this directly; api() below
+  // wraps it for the common "just give me the data or throw" case.
+  function apiRaw(path, options) {
+    return fetch(API + path, Object.assign({ credentials: 'same-origin', cache: 'no-store' }, options || {})).then(function (res) {
+      return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+    });
+  }
+
   function api(path, options) {
-    return fetch(API + path, Object.assign({ credentials: 'same-origin' }, options || {})).then(function (res) {
-      return res.json().then(function (data) {
-        if (!res.ok) throw new Error(data.error || 'Fehler bei der Anfrage.');
-        return data;
-      });
+    return apiRaw(path, options).then(function (result) {
+      if (!result.ok) throw new Error(result.data.error || 'Fehler bei der Anfrage.');
+      return result.data;
     });
   }
 
@@ -66,20 +73,23 @@
     setupError.hidden = true;
     var password = document.getElementById('setup-password').value;
     var confirmPassword = document.getElementById('setup-password-confirm').value;
-    fetch(API + 'setup-password', {
+    apiRaw('setup-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
       body: JSON.stringify({ password: password, confirmPassword: confirmPassword }),
-    }).then(function (res) {
-      return res.json().then(function (data) { return { ok: res.ok, data: data }; });
     }).then(function (result) {
       if (result.ok) {
         showApp();
-      } else {
-        setupError.textContent = result.data.error || 'Einrichtung fehlgeschlagen.';
-        setupError.hidden = false;
+        return;
       }
+      // Most likely cause: a password already exists (e.g. someone already
+      // finished setup in another tab/click) — send them to the login
+      // screen instead of leaving them stuck here.
+      setupError.innerHTML = (result.data.error || 'Einrichtung fehlgeschlagen.') +
+        ' <a href="#" id="setup-go-to-login">Zum Login</a>';
+      setupError.hidden = false;
+      var link = document.getElementById('setup-go-to-login');
+      if (link) link.addEventListener('click', function (ev) { ev.preventDefault(); showLogin(); });
     }).catch(function () {
       setupError.textContent = 'Server nicht erreichbar.';
       setupError.hidden = false;
@@ -90,13 +100,10 @@
     e.preventDefault();
     loginError.hidden = true;
     var password = document.getElementById('login-password').value;
-    fetch(API + 'login', {
+    apiRaw('login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
       body: JSON.stringify({ password: password }),
-    }).then(function (res) {
-      return res.json().then(function (data) { return { ok: res.ok, data: data }; });
     }).then(function (result) {
       if (result.ok) {
         showApp();
@@ -767,4 +774,5 @@
   function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+
 })();

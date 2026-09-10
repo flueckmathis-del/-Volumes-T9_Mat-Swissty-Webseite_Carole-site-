@@ -1,3 +1,53 @@
+// Sektionen (js/sections.js) werden erst NACH DOMContentLoaded asynchron
+// nachgeladen und in #page-sections eingefügt. Reveal-Animationen und die
+// "Header transparent über Foto-Hero"-Logik hängen an Elementen, die zu
+// diesem Zeitpunkt noch gar nicht existieren — deshalb als wiederverwendbare
+// Funktionen exportiert, damit sections.js sie nach dem Rendern erneut
+// aufrufen kann.
+function cbInitHeroPhotoHeader() {
+  var header = document.querySelector('.site-header');
+  var heroPhoto = document.querySelector('.hero-photo');
+  if (header && heroPhoto && !header.classList.contains('has-hero-photo')) {
+    header.classList.add('has-hero-photo');
+    var updateHeaderState = function () {
+      if (window.scrollY < heroPhoto.offsetHeight - 80) {
+        header.classList.add('at-top');
+      } else {
+        header.classList.remove('at-top');
+      }
+    };
+    updateHeaderState();
+    window.addEventListener('scroll', updateHeaderState, { passive: true });
+  }
+}
+
+function cbInitReveal(root) {
+  var revealTargets = (root || document).querySelectorAll('[data-reveal]:not(.cb-reveal-bound), [data-reveal-group]:not(.cb-reveal-bound)');
+  if (!revealTargets.length) return;
+  if ('IntersectionObserver' in window) {
+    if (!cbInitReveal._observer) {
+      cbInitReveal._observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            cbInitReveal._observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    }
+    revealTargets.forEach(function (el) {
+      el.classList.add('cb-reveal-bound');
+      cbInitReveal._observer.observe(el);
+    });
+  } else {
+    revealTargets.forEach(function (el) {
+      el.classList.add('cb-reveal-bound', 'is-visible');
+    });
+  }
+}
+
+window.CBMain = { initReveal: cbInitReveal, initHeroPhotoHeader: cbInitHeroPhotoHeader };
+
 document.addEventListener('DOMContentLoaded', function () {
   // Sanftes Einblenden der Seite.
   requestAnimationFrame(function () {
@@ -13,39 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Transparenter Header über dem Foto-Hero, wird beim Scrollen solide.
-  var header = document.querySelector('.site-header');
-  var heroPhoto = document.querySelector('.hero-photo');
-  if (header && heroPhoto) {
-    header.classList.add('has-hero-photo');
-    var updateHeaderState = function () {
-      if (window.scrollY < heroPhoto.offsetHeight - 80) {
-        header.classList.add('at-top');
-      } else {
-        header.classList.remove('at-top');
-      }
-    };
-    updateHeaderState();
-    window.addEventListener('scroll', updateHeaderState, { passive: true });
-  }
-
-  // Scroll-Reveal-Animationen.
-  var revealTargets = document.querySelectorAll('[data-reveal], [data-reveal-group]');
-  if (revealTargets.length) {
-    if ('IntersectionObserver' in window) {
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-      revealTargets.forEach(function (el) { observer.observe(el); });
-    } else {
-      revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
-    }
-  }
+  cbInitHeroPhotoHeader();
+  cbInitReveal(document);
 
   // "Nach oben"-Button.
   var backToTop = document.createElement('button');

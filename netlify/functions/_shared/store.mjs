@@ -30,6 +30,9 @@ export async function updateJSON(store, key, fallback, mutate, attempts = 6) {
 export function json(status, body, extraHeaders) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, extraHeaders || {}),
+    headers: Object.assign(
+      { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+      extraHeaders || {}
+    ),
   });
 }
