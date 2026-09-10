@@ -456,6 +456,15 @@ section.alt { background: var(--color-bg-alt); }
 .img-frame:hover img { transform: scale(1.06); }
 
 /* ---------- Pricing ---------- */
+/* Falls eine Zeile (Leistung + Notiz + Preis) mehr Platz braucht, als der
+   Container hat, darf die Tabelle hier drin scrollen statt über den
+   rechten Seitenrand hinauszuwachsen — Tabellen ignorieren width:100%
+   sonst, sobald der Zeileninhalt das erzwingt. */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
 .price-table {
   width: 100%;
   border-collapse: collapse;
@@ -511,6 +520,9 @@ ul.topic-list li::before {
   background: var(--color-sage);
 }
 @media (max-width: 620px) { ul.topic-list { columns: 1; } }
+@media (max-width: 480px) {
+  .price-table th, .price-table td { padding: 13px 14px; font-size: 0.92rem; }
+}
 
 /* ---------- About ---------- */
 .about-grid {
