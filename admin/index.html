@@ -19,11 +19,17 @@
     <img src="../assets/logo.png" alt="Logo" class="admin-logo">
     <h1>Admin-Bereich</h1>
     <p>Bitte melde dich an, um Inhalte, Termine und Insights zu verwalten.</p>
-    <form id="login-form">
+    <form id="login-form" class="admin-login-form">
       <label for="login-password">Passwort</label>
       <input type="password" id="login-password" required autocomplete="current-password">
       <button type="submit" class="btn">Anmelden</button>
       <p id="login-error" class="admin-error" hidden></p>
+    </form>
+    <form id="login-2fa-form" class="admin-login-form" hidden>
+      <label for="login-2fa-code">Code aus deiner Authenticator-App (oder Wiederherstellungscode)</label>
+      <input type="text" id="login-2fa-code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" required>
+      <button type="submit" class="btn">Bestätigen</button>
+      <p id="login-2fa-error" class="admin-error" hidden></p>
     </form>
   </div>
 </div>
@@ -214,6 +220,49 @@
       <div class="admin-actions">
         <button id="change-password-save" class="btn" type="button">Passwort ändern</button>
         <span id="change-password-status" class="admin-status"></span>
+      </div>
+
+      <hr style="margin:32px 0; border:none; border-top:1px solid rgba(58,51,44,0.12);">
+
+      <h3>Zwei-Faktor-Authentifizierung (2FA)</h3>
+      <p class="admin-hint" id="twofa-status-text">Lädt …</p>
+
+      <div id="twofa-disabled-view" hidden>
+        <button id="twofa-start-setup" class="btn" type="button">2FA einrichten</button>
+      </div>
+
+      <div id="twofa-setup-view" style="max-width:420px;" hidden>
+        <p class="admin-hint">In der Authenticator-App (z.B. Google Authenticator, Authy, 1Password) "Konto hinzufügen" → "Setup-Schlüssel manuell eingeben" wählen und diesen Schlüssel eintippen:</p>
+        <p><code id="twofa-secret-display" style="font-size:1.15rem; letter-spacing:1.5px; word-break:break-all;"></code></p>
+        <div class="admin-field">
+          <label for="twofa-verify-code">6-stelliger Code aus der App</label>
+          <input type="text" id="twofa-verify-code" inputmode="numeric" maxlength="6" placeholder="123456">
+        </div>
+        <div class="admin-actions">
+          <button id="twofa-confirm-setup" class="btn" type="button">Bestätigen &amp; aktivieren</button>
+          <button id="twofa-cancel-setup" class="btn btn-outline" type="button">Abbrechen</button>
+        </div>
+        <span id="twofa-setup-status" class="admin-status"></span>
+      </div>
+
+      <div id="twofa-backup-codes-view" style="max-width:420px;" hidden>
+        <p class="admin-hint" style="color:#a5382e; font-weight:700;">Wichtig: Diese Wiederherstellungscodes werden nur jetzt angezeigt. Speichere sie sicher (z.B. Passwort-Manager oder ausgedruckt) — falls du dein Handy verlierst, kommst du damit trotzdem wieder rein. Jeder Code funktioniert nur einmal.</p>
+        <ul id="twofa-backup-codes-list" style="font-family:monospace; font-size:1.05rem; line-height:1.9; list-style:none; padding:12px 16px; background:rgba(58,51,44,0.05); border-radius:6px;"></ul>
+        <div class="admin-actions">
+          <button id="twofa-backup-codes-done" class="btn" type="button">Fertig, ich habe die Codes gespeichert</button>
+        </div>
+      </div>
+
+      <div id="twofa-enabled-view" style="max-width:420px;" hidden>
+        <p class="admin-hint" id="twofa-backup-remaining"></p>
+        <div class="admin-field">
+          <label for="twofa-disable-password">Aktuelles Passwort (zum Deaktivieren)</label>
+          <input type="password" id="twofa-disable-password" autocomplete="current-password">
+        </div>
+        <div class="admin-actions">
+          <button id="twofa-disable-btn" class="btn btn-outline" type="button">2FA deaktivieren</button>
+          <span id="twofa-disable-status" class="admin-status"></span>
+        </div>
       </div>
     </section>
 

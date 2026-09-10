@@ -22,9 +22,10 @@
 .admin-logo { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 16px; }
 .admin-login-card h1 { font-size: 1.5rem; margin-bottom: 8px; }
 .admin-login-card p { font-size: 0.92rem; color: rgba(58,51,44,0.7); margin-bottom: 24px; }
-#login-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
-#login-form label { font-weight: 700; font-size: 0.88rem; }
-#login-form input {
+.admin-login-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.admin-login-form[hidden] { display: none; }
+.admin-login-form label { font-weight: 700; font-size: 0.88rem; }
+.admin-login-form input {
   font-family: var(--font-body);
   font-size: 1rem;
   padding: 11px 14px;

@@ -27,6 +27,8 @@
   var loginError = document.getElementById('login-error');
   var setupForm = document.getElementById('setup-form');
   var setupError = document.getElementById('setup-error');
+  var login2faForm = document.getElementById('login-2fa-form');
+  var login2faError = document.getElementById('login-2fa-error');
 
   function hideAllAuthScreens() {
     authLoading.hidden = true;
@@ -48,6 +50,12 @@
   function showLogin() {
     hideAllAuthScreens();
     loginScreen.hidden = false;
+    // Reset back to the password step, in case we're returning here from a
+    // half-finished 2FA attempt (e.g. after logging out mid-way).
+    loginForm.hidden = false;
+    login2faForm.hidden = true;
+    loginForm.reset();
+    login2faForm.reset();
   }
 
   function showSetup() {
@@ -105,7 +113,11 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: password }),
     }).then(function (result) {
-      if (result.ok) {
+      if (result.ok && result.data.needsTwoFactor) {
+        loginForm.hidden = true;
+        login2faForm.hidden = false;
+        document.getElementById('login-2fa-code').focus();
+      } else if (result.ok) {
         showApp();
       } else {
         loginError.textContent = result.data.error || 'Anmeldung fehlgeschlagen.';
@@ -114,6 +126,27 @@
     }).catch(function () {
       loginError.textContent = 'Server nicht erreichbar.';
       loginError.hidden = false;
+    });
+  });
+
+  login2faForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    login2faError.hidden = true;
+    var code = document.getElementById('login-2fa-code').value.trim();
+    apiRaw('login-2fa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code }),
+    }).then(function (result) {
+      if (result.ok) {
+        showApp();
+      } else {
+        login2faError.textContent = result.data.error || 'Code ungültig.';
+        login2faError.hidden = false;
+      }
+    }).catch(function () {
+      login2faError.textContent = 'Server nicht erreichbar.';
+      login2faError.hidden = false;
     });
   });
 
@@ -156,6 +189,106 @@
         status.className = 'admin-status is-error';
       });
     });
+
+    initTwoFactorSection();
+  }
+
+  // ---------- Account: Zwei-Faktor-Authentifizierung (2FA) ----------
+  function initTwoFactorSection() {
+    var statusText = document.getElementById('twofa-status-text');
+    var disabledView = document.getElementById('twofa-disabled-view');
+    var setupView = document.getElementById('twofa-setup-view');
+    var backupView = document.getElementById('twofa-backup-codes-view');
+    var enabledView = document.getElementById('twofa-enabled-view');
+    var pendingSecret = null;
+
+    function showOnly(view) {
+      [disabledView, setupView, backupView, enabledView].forEach(function (v) { v.hidden = v !== view; });
+    }
+
+    function refreshStatus() {
+      statusText.textContent = 'Lädt …';
+      api('admin-2fa-status').then(function (data) {
+        if (data.enabled) {
+          statusText.textContent = '2FA ist aktiv — beim Login wird zusätzlich zum Passwort ein Code verlangt.';
+          document.getElementById('twofa-backup-remaining').textContent =
+            'Noch ' + data.unusedBackupCodes + ' ungenutzte Wiederherstellungscodes.';
+          showOnly(enabledView);
+        } else {
+          statusText.textContent = 'Noch nicht eingerichtet — empfohlen für zusätzlichen Schutz.';
+          showOnly(disabledView);
+        }
+      }).catch(function (err) {
+        statusText.textContent = err.message;
+      });
+    }
+
+    document.getElementById('twofa-start-setup').addEventListener('click', function () {
+      api('admin-2fa-setup', { method: 'POST' }).then(function (data) {
+        pendingSecret = data.secret;
+        document.getElementById('twofa-secret-display').textContent = data.secret.match(/.{1,4}/g).join(' ');
+        document.getElementById('twofa-verify-code').value = '';
+        var status = document.getElementById('twofa-setup-status');
+        status.textContent = '';
+        status.className = 'admin-status';
+        showOnly(setupView);
+      }).catch(function (err) {
+        statusText.textContent = err.message;
+      });
+    });
+
+    document.getElementById('twofa-cancel-setup').addEventListener('click', function () {
+      pendingSecret = null;
+      refreshStatus();
+    });
+
+    document.getElementById('twofa-confirm-setup').addEventListener('click', function () {
+      var code = document.getElementById('twofa-verify-code').value.trim();
+      var status = document.getElementById('twofa-setup-status');
+      status.textContent = 'Prüft …';
+      status.className = 'admin-status';
+      api('admin-2fa-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: pendingSecret, code: code }),
+      }).then(function (data) {
+        pendingSecret = null;
+        var list = document.getElementById('twofa-backup-codes-list');
+        list.innerHTML = '';
+        (data.backupCodes || []).forEach(function (c) {
+          var li = document.createElement('li');
+          li.textContent = c;
+          list.appendChild(li);
+        });
+        showOnly(backupView);
+      }).catch(function (err) {
+        status.textContent = err.message;
+        status.className = 'admin-status is-error';
+      });
+    });
+
+    document.getElementById('twofa-backup-codes-done').addEventListener('click', refreshStatus);
+
+    document.getElementById('twofa-disable-btn').addEventListener('click', function () {
+      var pw = document.getElementById('twofa-disable-password').value;
+      var status = document.getElementById('twofa-disable-status');
+      status.textContent = 'Deaktiviert …';
+      status.className = 'admin-status';
+      api('admin-2fa-disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: pw }),
+      }).then(function () {
+        document.getElementById('twofa-disable-password').value = '';
+        status.textContent = '';
+        refreshStatus();
+      }).catch(function (err) {
+        status.textContent = err.message;
+        status.className = 'admin-status is-error';
+      });
+    });
+
+    refreshStatus();
   }
 
   // ---------- Tabs ----------

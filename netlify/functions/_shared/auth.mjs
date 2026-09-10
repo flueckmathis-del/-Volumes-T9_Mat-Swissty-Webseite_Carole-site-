@@ -5,6 +5,9 @@ import { siteStore, readJSON, updateJSON } from './store.mjs';
 const COOKIE_NAME = 'admin_session';
 const SESSION_DAYS = 14;
 
+const PENDING_2FA_COOKIE_NAME = 'admin_2fa_pending';
+const PENDING_2FA_MINUTES = 5;
+
 // Brute-force protection for /login: there's only ever one admin account
 // on this site, so a single global lockout (rather than per-IP tracking,
 // which real attackers just route around) is both simpler and stronger.
@@ -110,4 +113,35 @@ export async function setSessionCookieHeader(knownSecret) {
 
 export function clearSessionCookieHeader() {
   return `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
+}
+
+// ---------------------------------------------------------------------
+// Zweiter Faktor: ein separates, kurzlebiges Cookie belegt "Passwort war
+// bereits korrekt", ohne schon eine echte Session zu sein — erst nach dem
+// TOTP-Code (oder einem Wiederherstellungscode) wird daraus admin_session.
+// ---------------------------------------------------------------------
+export async function setPendingTwoFactorCookieHeader(knownSecret) {
+  const payload = JSON.stringify({ purpose: '2fa_pending', exp: Date.now() + PENDING_2FA_MINUTES * 60 * 1000 });
+  const payloadB64 = b64url(payload);
+  const signature = createHmac('sha256', knownSecret).update(payloadB64).digest('base64url');
+  const token = `${payloadB64}.${signature}`;
+  const maxAge = PENDING_2FA_MINUTES * 60;
+  return `${PENDING_2FA_COOKIE_NAME}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
+}
+
+export function verifyPendingTwoFactorCookie(req, sessionSecret) {
+  const cookies = parseCookies(req);
+  const token = cookies[PENDING_2FA_COOKIE_NAME];
+  if (!token || typeof token !== 'string' || !token.includes('.')) return false;
+  const [payloadB64, signature] = token.split('.');
+  const expected = createHmac('sha256', sessionSecret).update(payloadB64).digest('base64url');
+  const a = Buffer.from(signature || '');
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return false;
+  try {
+    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
+    return payload.purpose === '2fa_pending' && typeof payload.exp === 'number' && payload.exp > Date.now();
+  } catch {
+    return false;
+  }
 }

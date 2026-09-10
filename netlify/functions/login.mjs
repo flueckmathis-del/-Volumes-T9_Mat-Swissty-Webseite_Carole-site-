@@ -1,4 +1,4 @@
-import { setSessionCookieHeader, checkLoginLockout, recordLoginFailure, recordLoginSuccess } from './_shared/auth.mjs';
+import { setSessionCookieHeader, setPendingTwoFactorCookieHeader, checkLoginLockout, recordLoginFailure, recordLoginSuccess } from './_shared/auth.mjs';
 import { getCredentials, verifyPassword } from './_shared/credentials.mjs';
 import { json } from './_shared/store.mjs';
 
@@ -31,6 +31,18 @@ export default async (req) => {
   if (!body || !verifyPassword(body.password, creds.salt, creds.hash)) {
     await recordLoginFailure();
     return json(401, { error: 'Falsches Passwort.' });
+  }
+
+  if (creds.totpEnabled) {
+    // Password is correct, but a second factor is required — don't record
+    // success (and don't reset the shared lockout counter) until the code
+    // is verified too in login-2fa.mjs, so the overall attempt budget
+    // covers both steps of a login, not just the password.
+    return json(
+      200,
+      { ok: true, needsTwoFactor: true },
+      { 'Set-Cookie': await setPendingTwoFactorCookieHeader(creds.sessionSecret) }
+    );
   }
 
   await recordLoginSuccess();
