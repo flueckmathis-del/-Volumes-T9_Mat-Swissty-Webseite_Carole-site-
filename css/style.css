@@ -179,6 +179,16 @@ header.site-header {
 .site-header.has-hero-photo.at-top nav.main-nav a:not(.btn):hover {
   color: #EFE0C9;
 }
+/* Das aufgeklappte Mobil-Menü hat einen eigenen hellen Hintergrund (nicht
+   mehr das Foto darunter) — die helle Schrift für "Header über Foto" wäre
+   dort unlesbar, deshalb hier wieder die normalen dunklen Textfarben. */
+.site-header.has-hero-photo.at-top nav.main-nav.open a:not(.btn) {
+  color: var(--color-ink);
+}
+.site-header.has-hero-photo.at-top nav.main-nav.open a.active,
+.site-header.has-hero-photo.at-top nav.main-nav.open a:not(.btn):hover {
+  color: var(--color-brand);
+}
 
 .nav-inner {
   max-width: var(--max-width);
