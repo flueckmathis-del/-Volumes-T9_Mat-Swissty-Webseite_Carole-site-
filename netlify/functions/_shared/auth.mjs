@@ -16,8 +16,12 @@ async function getSessionSecret() {
   return creds.sessionSecret;
 }
 
-export async function createSessionToken() {
-  const secret = await getSessionSecret();
+// `knownSecret`: pass this when the caller just wrote the credentials blob
+// itself (setup-password, login) and already has the secret in hand —
+// Netlify Blobs is only eventually consistent, so a fresh read of a blob
+// that was written moments ago in the same request can still miss it.
+export async function createSessionToken(knownSecret) {
+  const secret = knownSecret || (await getSessionSecret());
   const payload = JSON.stringify({ exp: Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000 });
   const payloadB64 = b64url(payload);
   const signature = createHmac('sha256', secret).update(payloadB64).digest('base64url');
@@ -63,8 +67,8 @@ export async function isAuthenticated(req) {
   return verifySessionToken(cookies[COOKIE_NAME]);
 }
 
-export async function setSessionCookieHeader() {
-  const token = await createSessionToken();
+export async function setSessionCookieHeader(knownSecret) {
+  const token = await createSessionToken(knownSecret);
   const maxAge = SESSION_DAYS * 24 * 60 * 60;
   return `${COOKIE_NAME}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
 }

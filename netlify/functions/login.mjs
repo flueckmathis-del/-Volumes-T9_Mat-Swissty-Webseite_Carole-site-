@@ -21,5 +21,5 @@ export default async (req) => {
     return json(401, { error: 'Falsches Passwort.' });
   }
 
-  return json(200, { ok: true }, { 'Set-Cookie': await setSessionCookieHeader() });
+  return json(200, { ok: true }, { 'Set-Cookie': await setSessionCookieHeader(creds.sessionSecret) });
 };

@@ -37,5 +37,5 @@ export default async (req) => {
     return json(409, { error: 'Es wurde bereits ein Admin-Passwort eingerichtet.' });
   }
 
-  return json(200, { ok: true }, { 'Set-Cookie': await setSessionCookieHeader() });
+  return json(200, { ok: true }, { 'Set-Cookie': await setSessionCookieHeader(sessionSecret) });
 };
