@@ -135,7 +135,6 @@
       render: function (d) {
         var img = '<div data-reveal style="position:relative; max-width:320px; margin:0 auto;">' +
           '<img src="' + esc(d.image) + '" alt="" style="border-radius:8px;">' +
-          '<img src="assets/herbs-wood.jpg" alt="" aria-hidden="true" style="position:absolute; width:44%; bottom:-24px; right:-30px; border:6px solid var(--color-bg-alt); border-radius:8px; box-shadow:0 16px 32px -14px rgba(58,51,44,0.4);">' +
           '</div>';
         var links = (d.links || []).map(function (l) {
           if (l.style === 'link') return '<a href="' + esc(l.href) + '">' + esc(l.label) + '</a>';
@@ -273,7 +272,12 @@
       render: function (d) {
         var rows = (d.rows || []).map(function (r) {
           var badge = r.highlight ? ' <span class="badge-popular">Beliebt</span>' : '';
-          var note = r.note ? ' — <em>' + esc(r.note) + '</em>' : '';
+          var note = '';
+          if (r.note && r.note.indexOf('\n') !== -1) {
+            note = '<ul class="price-note-list">' + r.note.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
+          } else if (r.note) {
+            note = ' — <em>' + esc(r.note) + '</em>';
+          }
           return '<tr' + (r.highlight ? ' class="row-highlight"' : '') + '><td>' + esc(r.label) + badge + note + '</td><td class="amount">' + esc(r.price) + '</td></tr>';
         }).join('');
         return (
