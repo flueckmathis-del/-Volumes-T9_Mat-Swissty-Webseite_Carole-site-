@@ -11,19 +11,6 @@
 
   function esc(str) { return escapeHtml(str); }
 
-  var ICONS = {
-    leaf: '<path d="M20 4c-8 0-14 5-14 13 0 1.5.2 2 .2 2S12 18 12 10c0-3 2-5 2-5"/><path d="M6 19c-1-4 0-9 3-12"/>',
-    basket: '<path d="M4 8h16l-1.5 11a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 8Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/>',
-    circles: '<circle cx="7" cy="6" r="2.4"/><circle cx="17" cy="6" r="2.4"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="18" r="2.4"/><path d="M7 8.4v7.2M17 8.4v7.2M9.2 6h5.6M9.2 18h5.6"/>',
-    star: '<path d="M12 3l2.6 5.9 6.4.6-4.9 4.2 1.5 6.3L12 16.9 6.4 20l1.5-6.3L3 9.5l6.4-.6L12 3Z"/>',
-  };
-  var ICON_KEYS = Object.keys(ICONS);
-
-  function iconSvg(key) {
-    var path = ICONS[key] || ICONS.leaf;
-    return '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>';
-  }
-
   function paragraphs(text) {
     return String(text || '')
       .split(/\n\s*\n/)
@@ -161,8 +148,8 @@
         return {
           eyebrow: '', title: 'Neue Überschrift',
           cards: [
-            { icon: 'leaf', title: 'Karte 1', text: 'Beschreibung …', link_label: '', link_href: '' },
-            { icon: 'basket', title: 'Karte 2', text: 'Beschreibung …', link_label: '', link_href: '' },
+            { title: 'Karte 1', text: 'Beschreibung …', link_label: '', link_href: '' },
+            { title: 'Karte 2', text: 'Beschreibung …', link_label: '', link_href: '' },
           ],
         };
       },
@@ -172,18 +159,17 @@
         {
           key: 'cards', label: 'Karten', type: 'items',
           itemFields: [
-            { key: 'icon', label: 'Icon', type: 'select', options: ICON_KEYS.map(function (k) { return { value: k, label: k }; }) },
             { key: 'title', label: 'Titel', type: 'text' },
             { key: 'text', label: 'Text', type: 'textarea' },
             { key: 'link_label', label: 'Link-Text', type: 'text' },
             { key: 'link_href', label: 'Link-Ziel', type: 'text' },
           ],
-          defaultItem: function () { return { icon: 'leaf', title: 'Neue Karte', text: '', link_label: '', link_href: '' }; },
+          defaultItem: function () { return { title: 'Neue Karte', text: '', link_label: '', link_href: '' }; },
         },
       ],
       render: function (d) {
         var cards = (d.cards || []).map(function (c) {
-          return '<div class="card">' + iconSvg(c.icon) +
+          return '<div class="card">' +
             (c.title ? '<h3>' + esc(c.title) + '</h3>' : '') +
             (c.text ? '<p>' + esc(c.text) + '</p>' : '') +
             (c.link_label ? '<a href="' + esc(c.link_href) + '">' + esc(c.link_label) + '</a>' : '') +
