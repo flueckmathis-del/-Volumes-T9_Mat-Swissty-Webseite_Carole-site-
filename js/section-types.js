@@ -268,7 +268,7 @@
         }).join('');
         return (
           '<section class="alt"><div class="wrap" style="max-width:760px;" data-reveal>' +
-          '<h2>' + esc(d.title) + '</h2>' +
+          (d.title ? '<h2>' + esc(d.title) + '</h2>' : '') +
           '<div class="table-scroll"><table class="price-table"><tbody>' + rows + '</tbody></table></div>' +
           (d.note_below ? '<p style="margin-top:18px; font-size:0.92rem; font-style:italic; color:rgba(58,51,44,0.75);">' + esc(d.note_below) + '</p>' : '') +
           '</div></section>'
