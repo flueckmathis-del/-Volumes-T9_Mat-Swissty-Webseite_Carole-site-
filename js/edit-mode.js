@@ -17,6 +17,7 @@
   var ASSET_OPTIONS = [
     'assets/portrait.png',
     'assets/logo.png',
+    'assets/bodyelements-logo.png',
     'assets/hero-fruit-linen.jpg',
     'assets/herbs-wood.jpg',
     'assets/basil-bowl.jpg',
@@ -80,12 +81,17 @@
   // ---------------------------------------------------------------------
   function initSettingsEditing(originalData) {
     var changes = {};
+    var CONTENT_PAGE = document.body.getAttribute('data-content');
     var bar = buildToolbar();
     document.body.appendChild(bar);
+    document.body.classList.add('cms-active');
 
     document.querySelectorAll('[data-k]').forEach(function (el) {
       var key = el.getAttribute('data-k');
-      if (SETTINGS_KEYS.indexOf(key) === -1) return; // nur noch Settings-Felder existieren hier
+      // Nicht-Settings-Felder gehören zur Seite (content/<seite>.json, z.B.
+      // der Hausbesuch-Hinweis auf kontakt.html) — nur bearbeitbar, wenn die
+      // Seite eine eigene Inhaltsdatei hat.
+      if (SETTINGS_KEYS.indexOf(key) === -1 && !CONTENT_PAGE) return;
       el.classList.add('cms-editable');
       el.setAttribute('contenteditable', 'true');
       el.setAttribute('spellcheck', 'false');
@@ -109,13 +115,20 @@
         return;
       }
       statusEl.textContent = 'Speichert …';
-      api('admin-content?page=settings').then(function (current) {
-        return api('admin-content', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ page: 'settings', data: Object.assign({}, current, changes) }),
+      var byPage = {};
+      Object.keys(changes).forEach(function (key) {
+        var target = SETTINGS_KEYS.indexOf(key) !== -1 ? 'settings' : CONTENT_PAGE;
+        (byPage[target] = byPage[target] || {})[key] = changes[key];
+      });
+      Promise.all(Object.keys(byPage).map(function (target) {
+        return api('admin-content?page=' + encodeURIComponent(target)).then(function (current) {
+          return api('admin-content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ page: target, data: Object.assign({}, current, byPage[target]) }),
+          });
         });
-      }).then(function () {
+      })).then(function () {
         Object.assign(originalData, changes);
         changes = {};
         document.querySelectorAll('.cms-dirty').forEach(function (el) { el.classList.remove('cms-dirty'); });
@@ -131,7 +144,7 @@
     var bar = document.createElement('div');
     bar.className = 'cms-toolbar';
     bar.innerHTML =
-      '<span class="cms-toolbar-label">✎ Bearbeitungsmodus — Header/Footer-Texte anklicken, Sektionen mit der Maus bearbeiten</span>' +
+      '<span class="cms-toolbar-label">✎ Bearbeitungsmodus — Texte anklicken, Sektionen mit der Maus bearbeiten</span>' +
       '<span class="cms-status"></span>' +
       '<button type="button" class="cms-save">Speichern</button>';
     return bar;
@@ -333,6 +346,64 @@
     });
   }
 
+  // Formatierungsleiste für Textfelder: setzt Markierungen um die Auswahl,
+  // die section-types.js (inlineFormat) beim Anzeigen in HTML umwandelt.
+  var FORMAT_BUTTONS = [
+    { label: '<b>Fett</b>', open: '**', close: '**' },
+    { label: '<span style="font-size:0.8em">Klein</span>', open: '[klein]', close: '[/klein]' },
+    { label: '<span style="font-size:1.1em">Gross</span>', open: '[gross]', close: '[/gross]' },
+    { label: '<span style="font-size:1.3em">Sehr gross</span>', open: '[sehrgross]', close: '[/sehrgross]' },
+  ];
+  var FORMAT_MARKERS_RE = /\*\*|\[\/?(?:klein|gross|sehrgross)\]/g;
+
+  function buildFormatBar(input) {
+    var bar = document.createElement('div');
+    bar.className = 'cms-format-bar';
+
+    function apply(fn) {
+      var start = input.selectionStart, end = input.selectionEnd, v = input.value;
+      var r = fn(v.slice(0, start), v.slice(start, end), v.slice(end));
+      input.value = r.before + r.middle + r.after;
+      input.focus();
+      input.setSelectionRange(r.before.length + (r.selStart || 0), r.before.length + (r.selEnd == null ? r.middle.length : r.selEnd));
+      input.dispatchEvent(new Event('input'));
+    }
+
+    FORMAT_BUTTONS.forEach(function (b) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.innerHTML = b.label;
+      btn.title = 'Markierten Text formatieren';
+      btn.addEventListener('mousedown', function (e) { e.preventDefault(); }); // Auswahl behalten
+      btn.addEventListener('click', function () {
+        apply(function (before, sel, after) {
+          // Ohne Auswahl Markierungen einfügen und Cursor dazwischen setzen.
+          return { before: before, middle: b.open + sel + b.close, after: after, selStart: b.open.length, selEnd: b.open.length + sel.length };
+        });
+      });
+      bar.appendChild(btn);
+    });
+
+    var clear = document.createElement('button');
+    clear.type = 'button';
+    clear.textContent = 'Formatierung entfernen';
+    clear.title = 'Formatierung im markierten Text (oder im ganzen Feld) entfernen';
+    clear.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    clear.addEventListener('click', function () {
+      apply(function (before, sel, after) {
+        if (!sel) return { before: '', middle: (before + after).replace(FORMAT_MARKERS_RE, ''), after: '', selStart: 0, selEnd: 0 };
+        return { before: before, middle: sel.replace(FORMAT_MARKERS_RE, ''), after: after };
+      });
+    });
+    bar.appendChild(clear);
+
+    var hint = document.createElement('div');
+    hint.className = 'cms-format-hint';
+    hint.textContent = 'Text markieren, dann Format wählen. Enter = neue Zeile.';
+    bar.appendChild(hint);
+    return bar;
+  }
+
   function buildFieldRow(field, data) {
     var row = document.createElement('div');
     row.className = 'cms-field';
@@ -343,6 +414,7 @@
       if (field.type === 'textarea') input.rows = 4;
       input.value = data[field.key] || '';
       input.addEventListener('input', function () { data[field.key] = input.value; });
+      if (field.type === 'textarea') row.appendChild(buildFormatBar(input));
       row.appendChild(input);
       return row;
     }
@@ -580,8 +652,11 @@
       '.cms-editable:hover{outline-color:rgba(124,107,135,0.6);}' +
       '.cms-focused{outline-color:#826C4F !important; outline-style:solid !important; background:rgba(130,108,79,0.06);}' +
       '.cms-dirty{background:rgba(111,121,85,0.12);}' +
-      '.cms-toolbar{position:fixed; left:0; right:0; bottom:0; z-index:9999; background:#3A332C; color:#fff; padding:12px 20px; display:flex; align-items:center; gap:16px; font-family:Karla,sans-serif; font-size:0.88rem; box-shadow:0 -6px 20px rgba(0,0,0,0.2);}' +
-      '.cms-toolbar-label{flex:1;}' +
+      // Oben statt unten: unten überdeckt die Netlify-Toolbar den Speichern-Button.
+      '.cms-toolbar{position:fixed; left:0; right:0; top:0; height:56px; box-sizing:border-box; z-index:9999; background:#3A332C; color:#fff; padding:0 20px; display:flex; align-items:center; gap:16px; font-family:Karla,sans-serif; font-size:0.88rem; box-shadow:0 6px 20px rgba(0,0,0,0.2);}' +
+      '.cms-toolbar-label{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}' +
+      'body.cms-active{padding-top:56px;}' +
+      'body.cms-active .site-header{top:56px;}' +
       '.cms-save{background:#826C4F; color:#fff; border:none; padding:9px 20px; border-radius:5px; font-weight:700; cursor:pointer; font-family:Karla,sans-serif;}' +
       '.cms-save:hover{background:#6B5840;}' +
       '.cms-status{opacity:0.85;}' +
@@ -618,10 +693,15 @@
       '.cms-panel-header h3{margin:0; font-size:1.05rem;}' +
       '.cms-panel-close{background:none; border:none; font-size:1.1rem; cursor:pointer;}' +
       '.cms-panel-body{flex:1; overflow:auto; padding:16px 18px;}' +
-      '.cms-panel-footer{padding:14px 18px; border-top:1px solid rgba(0,0,0,0.08); display:flex; align-items:center; justify-content:space-between;}' +
+      // Button links: unten rechts liegt das "Powered by Netlify"-Badge darüber.
+      '.cms-panel-footer{padding:14px 18px; border-top:1px solid rgba(0,0,0,0.08); display:flex; flex-direction:row-reverse; align-items:center; justify-content:flex-end; gap:12px;}' +
       '.cms-panel-apply{background:#826C4F; color:#fff; border:none; padding:9px 18px; border-radius:5px; font-weight:700; cursor:pointer;}' +
       '.cms-panel-apply:hover{background:#6B5840;}' +
       '.cms-field{margin-bottom:16px;}' +
+      '.cms-format-bar{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;}' +
+      '.cms-format-bar button{background:rgba(130,108,79,0.1); color:#3A332C; border:1px solid rgba(58,51,44,0.15); border-radius:4px; padding:3px 8px; cursor:pointer; font-family:Karla,sans-serif; font-size:0.78rem; line-height:1.3;}' +
+      '.cms-format-bar button:hover{background:rgba(130,108,79,0.22);}' +
+      '.cms-format-hint{flex-basis:100%; font-size:0.72rem; color:rgba(58,51,44,0.6);}' +
       '.cms-field label{display:block; font-weight:700; font-size:0.82rem; margin-bottom:6px;}' +
       '.cms-field input[type=text], .cms-field input:not([type]), .cms-field textarea, .cms-field select{width:100%; font-family:Karla,sans-serif; font-size:0.92rem; padding:8px 10px; border:1.5px solid rgba(58,51,44,0.2); border-radius:5px;}' +
       '.cms-checkbox-label{display:flex; align-items:center; gap:8px; font-weight:400;}' +

@@ -53,6 +53,14 @@
         <div data-k="home_visit_note">Wenn du den Weg zu mir nicht auf dich nehmen kannst, komme ich auf Anfrage gerne zu dir nach Hause.</div>
       </div>
 
+      <div class="info-line" id="opening-hours-line" hidden>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div>
+          <strong>Öffnungszeiten</strong>
+          <table class="opening-hours"><tbody id="opening-hours"></tbody></table>
+        </div>
+      </div>
+
       <a class="btn btn-outline" style="margin-top:8px;" target="_blank" rel="noopener"
          href="https://www.google.com/maps/search/?api=1&query=Oberfeld%2029%2C%203215%20Lurtigen" data-k="map_button">
         Route planen →
@@ -60,6 +68,24 @@
     </div>
 
     <form class="contact-form booking-form" id="booking-form" novalidate>
+      <fieldset class="service-choice">
+        <legend>Wofür möchtest du einen Termin? *</legend>
+        <label class="service-option">
+          <input type="radio" name="service" value="Ernährungsberatung" required>
+          <span class="service-card">
+            <strong>Ernährungsberatung</strong>
+            <small>Individuelle Beratung zu deiner Ernährung</small>
+          </span>
+        </label>
+        <label class="service-option">
+          <input type="radio" name="service" value="Metabolic Typing">
+          <span class="service-card">
+            <strong>Metabolic Typing</strong>
+            <small>bodyelements Metabolic Typing®</small>
+          </span>
+        </label>
+      </fieldset>
+
       <div>
         <label for="booking-date">Datum wählen *</label>
         <input type="date" id="booking-date" name="date" required>
@@ -81,12 +107,12 @@
           <input type="email" id="email" name="email" required>
         </div>
         <div>
-          <label for="phone">Telefonnummer (optional)</label>
-          <input type="tel" id="phone" name="phone" autocomplete="tel">
+          <label for="phone">Telefonnummer *</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" required>
         </div>
         <div>
-          <label for="message">Nachricht (optional)</label>
-          <textarea id="message" name="message" rows="4"></textarea>
+          <label for="message">Thema der Beratung *</label>
+          <textarea id="message" name="message" rows="7" required placeholder="Was ist der Grund für deine Anfrage? Erzähl mir kurz, worum es dir geht."></textarea>
         </div>
         <div>
           <button type="submit" class="btn">Termin verbindlich buchen</button>

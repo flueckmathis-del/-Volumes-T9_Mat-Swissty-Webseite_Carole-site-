@@ -9,3 +9,6 @@ node_modules
 
 # Local netlify dev artifact (Edge Functions bootstrap, unused here)
 deno.lock
+
+# macOS resource-fork files on external drives
+._*

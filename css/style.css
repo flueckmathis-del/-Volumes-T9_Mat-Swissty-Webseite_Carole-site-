@@ -292,6 +292,8 @@ nav.main-nav a:hover { color: var(--color-brand); }
 }
 
 /* ---------- Hero ---------- */
+.hero-logo { margin: 0 0 24px; line-height: 0; }
+.hero-logo img { display: block; width: 100%; max-width: 520px; height: auto; }
 .hero {
   padding: 72px 0 88px;
   position: relative;
@@ -561,6 +563,10 @@ ul.topic-list li::before {
 
 .info-line { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
 .info-line svg { flex-shrink: 0; margin-top: 3px; }
+.opening-hours { border-collapse: collapse; }
+.opening-hours td { padding: 1px 0; vertical-align: top; }
+.opening-hours td:first-child { padding-right: 18px; }
+.opening-hours .closed { color: rgba(58,51,44,0.6); }
 
 form.contact-form { display: flex; flex-direction: column; gap: 16px; }
 form.contact-form label { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; display: block; }
@@ -587,6 +593,27 @@ form.contact-form input[type="date"] { max-width: 220px; }
   gap: 10px;
   margin-top: 6px;
 }
+.service-choice { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.service-choice legend { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; padding: 0; }
+@media (max-width: 480px) { .service-choice { grid-template-columns: 1fr; } }
+.service-option { position: relative; margin: 0 !important; cursor: pointer; }
+.service-option input { position: absolute; opacity: 0; pointer-events: none; }
+.service-card {
+  display: block;
+  height: 100%;
+  padding: 16px 18px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(58,51,44,0.2);
+  background: var(--color-white);
+  transition: all 0.15s ease;
+}
+.service-card strong { display: block; font-size: 1rem; }
+.service-card small { display: block; font-weight: 400; color: rgba(58,51,44,0.65); margin-top: 4px; font-size: 0.85rem; }
+.service-option:hover .service-card { border-color: var(--color-brand); }
+.service-option input:focus-visible + .service-card { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+.service-option input:checked + .service-card { border-color: var(--color-brand); background: var(--color-brand); color: #fff; }
+.service-option input:checked + .service-card small { color: rgba(255,255,255,0.85); }
+
 .slot-btn {
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -652,3 +679,8 @@ footer.site-footer a:hover { color: #fff; text-decoration: underline; }
   font-size: 0.82rem;
   color: rgba(239,230,219,0.7);
 }
+
+/* Inline-Formatierung aus dem Bearbeitungsfenster (siehe section-types.js) */
+.t-sm { font-size: 0.85em; }
+.t-lg { font-size: 1.25em; line-height: 1.4; }
+.t-xl { font-size: 1.6em; line-height: 1.3; }

@@ -7,6 +7,12 @@ export default async (req) => {
   const url = new URL(req.url);
   const date = url.searchParams.get('date');
 
+  // Wochenzeiten für die Öffnungszeiten auf der Kontaktseite.
+  if (url.searchParams.get('weekly')) {
+    const availability = await readJSON(siteStore(), 'availability.json', DEFAULT_AVAILABILITY);
+    return json(200, { weekly: availability.weekly || {} });
+  }
+
   if (!date || !DATE_RE.test(date)) {
     return json(400, { error: 'Bitte ein gültiges Datum (YYYY-MM-DD) angeben.' });
   }

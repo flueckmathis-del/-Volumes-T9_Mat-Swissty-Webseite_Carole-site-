@@ -565,6 +565,7 @@
     pop.innerHTML =
       '<button class="close-btn" type="button">×</button>' +
       '<div class="when">' + booking.date + ' · ' + booking.time + ' Uhr</div>' +
+      (booking.service ? '<div><strong>' + escapeHtml(booking.service) + '</strong></div>' : '') +
       '<div>' + escapeHtml(booking.name) + '<br><a href="mailto:' + escapeHtml(booking.email) + '">' + escapeHtml(booking.email) + '</a>' + phoneLine + '</div>' +
       msg +
       '<div class="cal-popover-view">' +

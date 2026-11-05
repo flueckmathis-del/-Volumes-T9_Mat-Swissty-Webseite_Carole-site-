@@ -1,5 +1,5 @@
 export const DEFAULT_AVAILABILITY = {
-  slotMinutes: 60,
+  slotMinutes: 90,
   weeksAhead: 6,
   weekly: {
     mon: ['09:00-12:00', '14:00-17:00'],
@@ -42,7 +42,7 @@ export function slotsForDate(dateStr, availability) {
 
   const key = weekdayKeyFor(dateStr);
   const ranges = (availability.weekly && availability.weekly[key]) || [];
-  const slotMinutes = availability.slotMinutes || 60;
+  const slotMinutes = availability.slotMinutes || 90;
   const slots = [];
   ranges.forEach((range) => {
     const [start, end] = range.split('-');

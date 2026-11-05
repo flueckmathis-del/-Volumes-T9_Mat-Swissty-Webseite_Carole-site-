@@ -11,12 +11,33 @@
 
   function esc(str) { return escapeHtml(str); }
 
+  // Inline-Formatierung aus dem Bearbeitungsfenster (Formatierungsleiste in
+  // edit-mode.js): **fett**, [klein]…[/klein], [gross]…[/gross],
+  // [sehrgross]…[/sehrgross]. Läuft auf bereits escaptem Text, kann also
+  // kein fremdes HTML einschleusen.
+  var SIZE_CLASSES = { klein: 't-sm', gross: 't-lg', sehrgross: 't-xl' };
+  function inlineFormat(html) {
+    var prev;
+    do {
+      prev = html;
+      html = html
+        .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[(klein|gross|sehrgross)\]([\s\S]*?)\[\/\1\]/g, function (m, size, inner) {
+          return '<span class="' + SIZE_CLASSES[size] + '">' + inner + '</span>';
+        });
+    } while (html !== prev);
+    return html;
+  }
+
+  // Für Textarea-Felder: Zeilenumbrüche und Formatierung aus dem Bearbeitungsfenster übernehmen.
+  function escLines(str) { return inlineFormat(esc(String(str == null ? '' : str).trim()).replace(/\r?\n/g, '<br>')); }
+
   function paragraphs(text) {
     return String(text || '')
       .split(/\n\s*\n/)
       .map(function (p) { return p.trim(); })
       .filter(Boolean)
-      .map(function (p) { return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>'; })
+      .map(function (p) { return '<p>' + inlineFormat(esc(p).replace(/\n/g, '<br>')) + '</p>'; })
       .join('');
   }
 
@@ -61,7 +82,7 @@
           (d.eyebrow ? '<div class="eyebrow" data-reveal>' + esc(d.eyebrow) + '</div>' : '') +
           (d.quote ? '<p class="hero-quote" data-reveal>' + esc(d.quote) + '</p>' : '') +
           '<h1 data-reveal>' + esc(d.title) + '</h1>' +
-          (d.text ? '<p data-reveal>' + esc(d.text) + '</p>' : '') +
+          (d.text ? '<p data-reveal>' + escLines(d.text) + '</p>' : '') +
           '<div class="cta-row" data-reveal>' + btn(d.cta_primary_label, d.cta_primary_href, false) + btn(d.cta_secondary_label, d.cta_secondary_href, true) + '</div>' +
           '</div></section>'
         );
@@ -74,6 +95,7 @@
         return { eyebrow: 'Neue Seite', title: 'Neue Überschrift', text: 'Beschreibungstext …', emphasis: false };
       },
       fields: [
+        { key: 'logo', label: 'Logo (optional — wird anstelle des Titels angezeigt)', type: 'image' },
         { key: 'eyebrow', label: 'Eyebrow', type: 'text' },
         { key: 'title', label: 'Titel', type: 'text' },
         { key: 'text', label: 'Text', type: 'textarea' },
@@ -83,9 +105,11 @@
         return (
           '<section class="hero" style="padding-bottom:20px;">' +
           '<div class="wrap" style="display:block; max-width:760px;" data-reveal>' +
-          '<div class="eyebrow">' + esc(d.eyebrow) + '</div>' +
-          '<h1>' + esc(d.title) + '</h1>' +
-          (d.text ? '<p class="' + (d.emphasis ? 'hero-quote' : '') + '">' + esc(d.text) + '</p>' : '') +
+          (d.eyebrow ? '<div class="eyebrow">' + esc(d.eyebrow) + '</div>' : '') +
+          (d.logo
+            ? '<h1 class="hero-logo"><img src="' + esc(d.logo) + '" alt="' + esc(d.title) + '"></h1>'
+            : '<h1>' + esc(d.title) + '</h1>') +
+          (d.text ? '<p class="' + (d.emphasis ? 'hero-quote' : '') + '">' + escLines(d.text) + '</p>' : '') +
           '</div></section>'
         );
       },
@@ -171,7 +195,7 @@
         var cards = (d.cards || []).map(function (c) {
           return '<div class="card">' +
             (c.title ? '<h3>' + esc(c.title) + '</h3>' : '') +
-            (c.text ? '<p>' + esc(c.text) + '</p>' : '') +
+            (c.text ? '<p>' + escLines(c.text) + '</p>' : '') +
             (c.link_label ? '<a href="' + esc(c.link_href) + '">' + esc(c.link_label) + '</a>' : '') +
             '</div>';
         }).join('');
@@ -203,7 +227,7 @@
           '<div class="photo-band-overlay"></div>' +
           '<div class="wrap" style="text-align:center; max-width:640px;" data-reveal>' +
           '<h2>' + esc(d.title) + '</h2>' +
-          (d.text ? '<p>' + esc(d.text) + '</p>' : '') +
+          (d.text ? '<p>' + escLines(d.text) + '</p>' : '') +
           btn(d.button_label, d.button_href, false) +
           '</div></section>'
         );
@@ -226,7 +250,7 @@
           '<section><div class="wrap" style="max-width:760px;" data-reveal>' +
           (d.title ? '<h2>' + esc(d.title) + '</h2>' : '') +
           '<ul class="topic-list">' + items + '</ul>' +
-          (d.footer_text ? '<p>' + esc(d.footer_text) + '</p>' : '') +
+          (d.footer_text ? '<p>' + escLines(d.footer_text) + '</p>' : '') +
           '</div></section>'
         );
       },
@@ -270,7 +294,7 @@
           '<section class="alt"><div class="wrap" style="max-width:760px;" data-reveal>' +
           (d.title ? '<h2>' + esc(d.title) + '</h2>' : '') +
           '<div class="table-scroll"><table class="price-table"><tbody>' + rows + '</tbody></table></div>' +
-          (d.note_below ? '<p style="margin-top:18px; font-size:0.92rem; font-style:italic; color:rgba(58,51,44,0.75);">' + esc(d.note_below) + '</p>' : '') +
+          (d.note_below ? '<p style="margin-top:18px; font-size:0.92rem; font-style:italic; color:rgba(58,51,44,0.75);">' + escLines(d.note_below) + '</p>' : '') +
           '</div></section>'
         );
       },
@@ -290,7 +314,7 @@
         return (
           '<section class="alt"><div class="wrap" style="max-width:680px; text-align:center;" data-reveal>' +
           '<div class="card" style="text-align:left; border-top-color:var(--color-lavender);">' +
-          '<p class="hero-quote" style="margin-bottom:14px;">«' + esc(d.quote) + '»</p>' +
+          '<p class="hero-quote" style="margin-bottom:14px;">«' + escLines(d.quote) + '»</p>' +
           '<p style="margin:0; font-weight:700;">' + esc(d.name) + (d.role ? '<span style="font-weight:400; color:rgba(58,51,44,0.65);"> — ' + esc(d.role) + '</span>' : '') + '</p>' +
           '</div></div></section>'
         );

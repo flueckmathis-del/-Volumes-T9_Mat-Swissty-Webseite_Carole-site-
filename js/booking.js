@@ -73,6 +73,12 @@
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+    var serviceInput = form.querySelector('input[name="service"]:checked');
+    var service = serviceInput ? serviceInput.value : '';
+    if (!service) {
+      setStatus('Bitte wähle aus, wofür du einen Termin möchtest.', true);
+      return;
+    }
     if (!dateInput.value || !selectedTime) {
       setStatus('Bitte Datum und Uhrzeit auswählen.', true);
       return;
@@ -81,8 +87,8 @@
     var email = document.getElementById('email').value.trim();
     var phone = document.getElementById('phone').value.trim();
     var message = document.getElementById('message').value.trim();
-    if (!name || !email) {
-      setStatus('Bitte Name und E-Mail-Adresse angeben.', true);
+    if (!name || !email || !phone || !message) {
+      setStatus('Bitte Name, E-Mail, Telefonnummer und Thema der Beratung angeben.', true);
       return;
     }
 
@@ -93,7 +99,7 @@
     fetch('/.netlify/functions/book', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: dateInput.value, time: selectedTime, name: name, email: email, phone: phone, message: message }),
+      body: JSON.stringify({ service: service, date: dateInput.value, time: selectedTime, name: name, email: email, phone: phone, message: message }),
     })
       .then(function (res) {
         return res.json().then(function (data) { return { ok: res.ok, data: data }; });
@@ -101,7 +107,7 @@
       .then(function (result) {
         submitBtn.disabled = false;
         if (result.ok) {
-          form.innerHTML = '<p class="form-note" style="font-size:1rem; color:var(--color-sage);">Danke, ' + escapeHtml(name) + '! Dein Termin am ' + dateInput.value + ' um ' + selectedTime + ' Uhr ist gebucht. Du erhältst in Kürze eine Bestätigung von mir.</p>';
+          form.innerHTML = '<p class="form-note" style="font-size:1rem; color:var(--color-sage);">Danke, ' + escapeHtml(name) + '! Dein Termin (' + escapeHtml(service) + ') am ' + dateInput.value + ' um ' + selectedTime + ' Uhr ist gebucht. Du erhältst in Kürze eine Bestätigung von mir.</p>';
         } else {
           setStatus(result.data.error || 'Diese Zeit ist leider nicht mehr verfügbar.', true);
           loadSlots(dateInput.value);
@@ -112,6 +118,27 @@
         setStatus('Die Buchung ist fehlgeschlagen. Bitte versuch es erneut oder schreib mir direkt eine E-Mail.', true);
       });
   });
+
+  // Öffnungszeiten aus den im Admin eingestellten Wochenzeiten anzeigen.
+  var hoursBody = document.getElementById('opening-hours');
+  if (hoursBody) {
+    var DAYS = [['mon', 'Montag'], ['tue', 'Dienstag'], ['wed', 'Mittwoch'], ['thu', 'Donnerstag'], ['fri', 'Freitag'], ['sat', 'Samstag'], ['sun', 'Sonntag']];
+    fetch('/.netlify/functions/availability?weekly=1')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var weekly = data.weekly;
+        if (!weekly) return;
+        hoursBody.innerHTML = DAYS.map(function (day) {
+          var ranges = weekly[day[0]] || [];
+          var hours = ranges.length
+            ? ranges.map(function (r) { return escapeHtml(r.replace('-', '–')); }).join(', ')
+            : '<span class="closed">geschlossen</span>';
+          return '<tr><td>' + day[1] + '</td><td>' + hours + '</td></tr>';
+        }).join('');
+        document.getElementById('opening-hours-line').hidden = false;
+      })
+      .catch(function () {});
+  }
 
   function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
