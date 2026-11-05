@@ -88,7 +88,7 @@
     var phone = document.getElementById('phone').value.trim();
     var message = document.getElementById('message').value.trim();
     if (!name || !email || !phone || !message) {
-      setStatus('Bitte Name, E-Mail, Telefonnummer und Thema der Beratung angeben.', true);
+      setStatus('Bitte fülle alle Pflichtfelder (*) aus.', true);
       return;
     }
 

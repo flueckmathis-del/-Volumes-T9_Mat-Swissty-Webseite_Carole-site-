@@ -5,5 +5,7 @@
   "home_visit_note": "Wenn du den Weg zu mir nicht auf dich nehmen kannst, komme ich auf Anfrage gerne zu dir nach Hause.",
   "map_button": "Route planen →",
   "form_note": "Mit dem Absenden stimmst du der Kontaktaufnahme per E-Mail zu.",
-  "form_button": "Nachricht senden"
+  "form_button": "Nachricht senden",
+  "topic_label": "Thema der Beratung *",
+  "topic_placeholder": "Was ist der Grund für deine Anfrage? Erzähl mir kurz, worum es dir geht."
 }

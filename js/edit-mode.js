@@ -106,6 +106,38 @@
       });
     });
 
+    // Labels mit data-k: "for" entfernen, sonst springt der Klick ins
+    // Eingabefeld statt in den Label-Text.
+    document.querySelectorAll('label[data-k]').forEach(function (el) {
+      el.removeAttribute('for');
+    });
+
+    // Platzhalter-Texte (z.B. "Thema der Beratung" im Buchungsformular):
+    // im Bearbeitungsmodus steht der Platzhalter als Text im Feld und kann
+    // direkt überschrieben werden.
+    if (CONTENT_PAGE) {
+      var bookingDetails = document.getElementById('booking-details');
+      if (bookingDetails) bookingDetails.hidden = false;
+      document.querySelectorAll('[data-k-placeholder]').forEach(function (el) {
+        var key = el.getAttribute('data-k-placeholder');
+        var initial = el.getAttribute('placeholder') || '';
+        el.value = initial;
+        el.classList.add('cms-editable');
+        el.title = 'Platzhalter-Text — hier direkt bearbeiten';
+        el.addEventListener('focus', function () { el.classList.add('cms-focused'); });
+        el.addEventListener('blur', function () {
+          el.classList.remove('cms-focused');
+          var val = el.value.trim();
+          el.setAttribute('placeholder', val);
+          var saved = originalData[key] !== undefined ? originalData[key] : initial;
+          if (val !== String(saved)) {
+            changes[key] = val;
+            el.classList.add('cms-dirty');
+          }
+        });
+      });
+    }
+
     var saveBtn = bar.querySelector('.cms-save');
     var statusEl = bar.querySelector('.cms-status');
 

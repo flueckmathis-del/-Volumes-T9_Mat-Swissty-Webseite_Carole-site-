@@ -13,7 +13,9 @@ export default async (req) => {
     const page = url.searchParams.get('page');
     if (!ALLOWED_PAGES.includes(page)) return json(400, { error: 'Unbekannte Seite.' });
     const data = await readJSON(store, `content/${page}.json`, ALL[page]);
-    return json(200, data);
+    // Neue Felder (z.B. später hinzugefügte Formular-Texte) erscheinen auch,
+    // wenn die gespeicherte Version sie noch nicht enthält.
+    return json(200, Object.assign({}, ALL[page], data));
   }
 
   if (req.method === 'POST') {

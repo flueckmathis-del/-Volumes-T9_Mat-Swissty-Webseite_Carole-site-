@@ -27,7 +27,7 @@ export default async (req) => {
   if (!name || !String(name).trim()) return json(400, { error: 'Bitte gib deinen Namen an.' });
   if (!email || !EMAIL_RE.test(email)) return json(400, { error: 'Bitte gib eine gültige E-Mail-Adresse an.' });
   if (!phone || !String(phone).trim()) return json(400, { error: 'Bitte gib deine Telefonnummer an.' });
-  if (!message || !String(message).trim()) return json(400, { error: 'Bitte gib das Thema der Beratung an.' });
+  if (!message || !String(message).trim()) return json(400, { error: 'Bitte beschreib kurz dein Anliegen.' });
 
   const store = siteStore();
   const availability = await readJSON(store, 'availability.json', DEFAULT_AVAILABILITY);

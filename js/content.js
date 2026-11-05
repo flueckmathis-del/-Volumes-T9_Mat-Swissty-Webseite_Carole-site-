@@ -31,6 +31,12 @@
       if (value === undefined || value === null) return;
       el.setAttribute('href', 'tel:' + value);
     });
+    root.querySelectorAll('[data-k-placeholder]').forEach(function (el) {
+      var key = el.getAttribute('data-k-placeholder');
+      var value = data[key];
+      if (value === undefined || value === null) return;
+      el.setAttribute('placeholder', value);
+    });
     root.querySelectorAll('[data-k-src]').forEach(function (el) {
       var key = el.getAttribute('data-k-src');
       var value = data[key];
