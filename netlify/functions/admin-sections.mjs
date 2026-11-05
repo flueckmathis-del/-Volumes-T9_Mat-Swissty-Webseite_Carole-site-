@@ -15,6 +15,7 @@ const ALLOWED_TYPES = [
   'text-hero',
   'split-image-text',
   'card-grid',
+  'offer-cards',
   'cta-band',
   'topic-list',
   'pricing-table',

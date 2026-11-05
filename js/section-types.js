@@ -208,6 +208,60 @@
       },
     },
 
+    'offer-cards': {
+      label: 'Angebotskarten (mit Preis)',
+      defaultData: function () {
+        return {
+          eyebrow: '', title: 'Angebot und Preise',
+          cards: [
+            { title: 'Angebot', price: 'CHF 0.–', text: '', points: 'Leistung 1\nLeistung 2', button_label: 'Termin anfragen', button_href: 'kontakt.html' },
+          ],
+          note_below: '',
+        };
+      },
+      fields: [
+        { key: 'eyebrow', label: 'Eyebrow', type: 'text' },
+        { key: 'title', label: 'Titel', type: 'text' },
+        {
+          key: 'cards', label: 'Karten', type: 'items',
+          itemFields: [
+            { key: 'title', label: 'Titel', type: 'text' },
+            { key: 'price', label: 'Preis', type: 'text' },
+            { key: 'text', label: 'Beschreibung (optional)', type: 'textarea' },
+            { key: 'points', label: 'Punkte mit Häkchen (ein Punkt pro Zeile)', type: 'textarea' },
+            { key: 'button_label', label: 'Button-Text', type: 'text' },
+            { key: 'button_href', label: 'Button-Ziel', type: 'text' },
+          ],
+          defaultItem: function () { return { title: 'Neues Angebot', price: 'CHF 0.–', text: '', points: '', button_label: 'Termin anfragen', button_href: 'kontakt.html' }; },
+        },
+        { key: 'note_below', label: 'Hinweistext darunter (optional)', type: 'textarea' },
+      ],
+      render: function (d) {
+        var check = '<svg class="offer-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        var cards = (d.cards || []).map(function (c) {
+          var points = String(c.points || '').split('\n')
+            .map(function (l) { return l.replace(/^\s*[-•·]\s*/, '').trim(); })
+            .filter(Boolean)
+            .map(function (l) { return '<li>' + check + '<span>' + inlineFormat(esc(l)) + '</span></li>'; })
+            .join('');
+          return '<div class="offer-card">' +
+            (c.title ? '<h3>' + esc(c.title) + '</h3>' : '') +
+            (c.price ? '<div class="offer-price">' + esc(c.price) + '</div>' : '') +
+            (c.text ? '<div class="offer-text">' + paragraphs(c.text) + '</div>' : '') +
+            (points ? '<ul class="offer-points">' + points + '</ul>' : '') +
+            (c.button_label ? '<div class="offer-cta">' + btn(c.button_label, c.button_href, false) + '</div>' : '') +
+            '</div>';
+        }).join('');
+        return (
+          '<section class="alt"><div class="wrap">' +
+          ((d.eyebrow || d.title) ? '<div class="section-head" data-reveal>' + (d.eyebrow ? '<div class="eyebrow">' + esc(d.eyebrow) + '</div>' : '') + '<h2>' + esc(d.title) + '</h2></div>' : '') +
+          '<div class="offer-grid" data-reveal-group>' + cards + '</div>' +
+          (d.note_below ? '<p class="offer-note">' + escLines(d.note_below) + '</p>' : '') +
+          '</div></section>'
+        );
+      },
+    },
+
     'cta-band': {
       label: 'CTA-Banner (Fotoband)',
       defaultData: function () {
@@ -352,6 +406,6 @@
   };
 
   global.CB_SECTION_TYPES = TYPES;
-  global.CB_SECTION_TYPE_ORDER = ['hero-photo', 'text-hero', 'split-image-text', 'card-grid', 'cta-band', 'topic-list', 'pricing-table', 'testimonial', 'gallery'];
+  global.CB_SECTION_TYPE_ORDER = ['hero-photo', 'text-hero', 'split-image-text', 'card-grid', 'offer-cards', 'cta-band', 'topic-list', 'pricing-table', 'testimonial', 'gallery'];
   global.CB_escapeHtml = escapeHtml;
 })(window);

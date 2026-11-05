@@ -434,6 +434,61 @@ section.alt { background: var(--color-bg-alt); }
 .card svg { margin-bottom: 16px; transition: transform 0.3s ease; }
 .card:hover svg { transform: scale(1.12); }
 
+/* ---------- Angebotskarten (mit Preis) ---------- */
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px;
+  max-width: 980px;
+}
+.offer-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-white);
+  border: 1px solid rgba(58,51,44,0.08);
+  border-radius: 12px;
+  padding: 36px 34px 34px;
+  box-shadow: 0 14px 34px -24px rgba(58,51,44,0.35);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.offer-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px -22px rgba(58,51,44,0.32);
+}
+.offer-card h3 { margin: 0 0 14px; font-size: 1.35rem; line-height: 1.25; }
+.offer-price {
+  font-family: var(--font-head);
+  font-size: clamp(1.9rem, 3.4vw, 2.4rem);
+  line-height: 1.1;
+  color: var(--color-brand-dark);
+  padding-bottom: 20px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid rgba(58,51,44,0.12);
+}
+.offer-text p { margin: 0 0 14px; }
+.offer-points { list-style: none; margin: 4px 0 0; padding: 0; }
+.offer-points li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 7px 0;
+  line-height: 1.5;
+}
+.offer-check { flex: 0 0 auto; margin-top: 3px; color: var(--color-sage); }
+.offer-cta { margin-top: auto; padding-top: 28px; }
+.offer-cta .btn { width: 100%; justify-content: center; text-align: center; }
+.offer-note {
+  margin-top: 22px;
+  max-width: 980px;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: rgba(58,51,44,0.75);
+}
+@media (max-width: 700px) {
+  .offer-grid { grid-template-columns: 1fr; }
+  .offer-card { padding: 28px 24px; }
+}
+
 /* ---------- Bild-Rahmen mit sanftem Zoom ---------- */
 .img-frame { overflow: hidden; border-radius: 8px; }
 .img-frame img { transition: transform 0.6s ease; }
